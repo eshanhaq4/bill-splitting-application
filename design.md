@@ -30,9 +30,90 @@
 
 ## 2. State Model
 
+![Receipt State](./diagrams/receipt-state.png)
+
+![Bill Item State](./diagrams/bill-item.png)
+
+![User Online/Agent State](./diagrams/user-agent-state.png)
+
 ---
 
 ## 3. Data Model (Schema)
+
+'''ts
+User {
+  id: UUID
+  email: String
+  name: String
+  dietPreferences: JSON
+  createdAt: DateTime
+}
+
+Group {
+  id: UUID
+  name: String
+  leaderUserId: UUID
+  createdAt: DateTime
+}
+
+GroupMember {       //enables fast queries + relationship fields reliably
+  groupId: UUID
+  userId: UUID
+  role: String
+  joinedAt: DateTime
+}
+
+Bill {
+  id: UUID
+  groupId: UUID
+  title: String
+  status: String
+  subtotal: Float
+  tax: Float
+  tip: Float
+  total: Float
+  createdBy: UUID
+  createdAt: DateTime
+  updatedAt: DateTime
+  version: Int
+}
+
+Receipt {       // allows bill to have zero or multiple receipt uploads + reliable processing status
+  id: UUID
+  billId: UUID
+  uploadedBy: UUID
+  storageUrl: String
+  status: String
+  error: String | null
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+BillItem {
+  id: UUID
+  billId: UUID
+  receiptId: UUID | null
+  name: String
+  price: Float
+  category: String
+  status: String
+  sortOrder: Int
+  splitUsers: UUID[] 
+  splitNum: len(splitUsers)
+  version: Int
+  createdAt: DateTime
+  updatedAt: DateTime
+}
+
+AgentEvent {        //to keep track of actions taken by agent
+  id: UUID
+  billId: UUID
+  userId: UUID
+  eventType: String
+  billItemIds: UUID[]
+  reason: String
+  createdAt: DateTime
+}
 
 
 ---
