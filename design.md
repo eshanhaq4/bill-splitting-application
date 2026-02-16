@@ -152,17 +152,17 @@ AgentEvent {        //to keep track of actions taken by agent
 
 ## 5. Failure Scenarios
 
-Scenarios:
+### Scenarios:
 1. Race conditions on an item claim - when two users both try to claim the same item at the same time.
 2. User disconnect - user disconnects before actually confirming the items for the bill.
 3. Background worker job failure - when a user uploads a receipt, the server must create a job in the Redis Queue, but the background process can crash 
 
-Implications:
+### Implications:
 1. Without proper concurrency control, both requests could end up succeeding. This is an issue as it could cause duplicate claims, incorrect totals for the bill, and inconsistent states for users
 2. If a user disconnects before confirming their items, then the bill can’t be finalized, which blocks the group from proceeding and also could result in risks of state inconsistency if the user reconnects. 
 3. If the background worker crashes or OCR fails, then the receipt could get stuck as “processing” and not be able to change states, resulting in the items for the bill not appearing successfully and breaking the system for the users.
 
-How the System Should Recover?
+### How the System Should Recover?
 1. When the user tries to claim an item, the server implements a Redis distributed lock to make sure that only one update actually succeeds, with the other user receiving the updated state.
 2. The server can track the user’s connection using heartbeat/timeout, where if a user is disconnected for a certain period of time (Ex: 2 minutes), they are declared offline, and the lite agent can take over for the user and/or the items they already have. If the user is able to reconnect, then the server continues action with the user as normal.
 3. The table that represents a receipt can have a field for “status,” which the background worker updates as the server runs. This way, if any failure occurs, the status can change to reflect that, allowing the user to be notified via the client and letting them know to try uploading it again successfully.
