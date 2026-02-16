@@ -40,7 +40,7 @@
 
 ## 3. Data Model (Schema)
 
-'''ts
+```
 User {
   id: UUID
   email: String
@@ -114,7 +114,7 @@ AgentEvent {        //to keep track of actions taken by agent
   reason: String
   createdAt: DateTime
 }
-
+```
 
 ---
 
