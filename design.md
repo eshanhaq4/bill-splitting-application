@@ -32,7 +32,7 @@
 
 ![Receipt State](./diagrams/receipt-state.png)
 
-![Bill Item State](./diagrams/bill-item.png)
+![Bill Item State](./diagrams/bill-item-state.png)
 
 ![User Online/Agent State](./diagrams/user-agent-state.png)
 
