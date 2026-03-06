@@ -1,14 +1,17 @@
 # RFC-1: API & WebSocket Contract
 
 **Author:** Chris  
-**Branch:** `feature/rfc-1`  
-**Must be approved by:** Joanna, Ade, Eshan  
+**Must be approved by:** Joanna, Ade, Eshan
 
 ---
 
 ## Overview
 
 This RFC defines the complete API and WebSocket contract for the bill splitting app. All teammates must LGTM this before opening any feature branches that depend on the API.
+
+The system uses:
+- **GraphQL** for all queries and mutations
+- **WebSockets** for real-time events
 
 ---
 
@@ -20,8 +23,8 @@ Users are identified with an anonymous token + display name. No login or email r
 1. User enters a display name (e.g. "Chris")
 2. Server generates a random UUID token and returns it
 3. Token is stored in the browser (`localStorage`)
-4. Every subsequent HTTP request sends the token in the header: `Authorization: Bearer <token>`
-5. Every WebSocket connection sends the token as a query param: `ws://server/ws?token=<token>`
+4. Every GraphQL request sends the token in the header: `Authorization: Bearer <token>`
+5. Every WebSocket connection sends the token as a query param: `ws://<host>/ws?token=<token>&session_id=<session_id>`
 
 **Reconnection behavior:**
 - If a user disconnects, the token stays in the browser
@@ -31,191 +34,114 @@ Users are identified with an anonymous token + display name. No login or email r
 
 ---
 
-## 2. REST Endpoints
+## 2. GraphQL Schema
 
-All endpoints are prefixed with `/api`.  
-All request and response bodies are JSON.  
-All responses include a top level `success: boolean` field.
+### 2.1 Types
 
----
-
-### 2.1 Session
-
-#### `POST /api/session`
-Create a new bill session. Called by the group leader.
-
-**Request body:**
-```json
-{
-  "display_name": "Chris"
+```graphql
+type Session {
+  id: ID!
+  status: SessionStatus!
+  members: [Member!]!
+  items: [Item!]!
+  tax: Float
+  tip: Float
+  joinUrl: String!
+  qrCodeUrl: String!
 }
-```
 
-**Response:**
-```json
-{
-  "success": true,
-  "session_id": "abc123",
-  "token": "uuid-token",
-  "user_id": "user-uuid",
-  "qr_code_url": "https://..."
+enum SessionStatus {
+  WAITING
+  ACTIVE
+  CLOSED
 }
-```
 
----
-
-#### `GET /api/session/:session_id`
-Fetch the full session including all members and items.
-
-**Headers:** `Authorization: Bearer <token>`
-
-**Response:**
-```json
-{
-  "success": true,
-  "session": {
-    "id": "abc123",
-    "status": "active",
-    "members": [
-      { "user_id": "uuid", "display_name": "Chris", "connected": true }
-    ],
-    "items": [
-      {
-        "id": "item-uuid",
-        "name": "Burger",
-        "price": 15.00,
-        "category": "meat",
-        "claimed_by": null,
-        "locked": false
-      }
-    ],
-    "tax": 0.10,
-    "tip": 0.18
-  }
+type Member {
+  id: ID!
+  displayName: String!
+  connected: Boolean!
+  token: String
 }
-```
 
----
-
-#### `POST /api/session/:session_id/join`
-Join an existing session via QR code or link.
-
-**Request body:**
-```json
-{
-  "display_name": "Joanna"
+type Item {
+  id: ID!
+  name: String!
+  price: Float!
+  category: String
+  quantity: Int!
+  claimedBy: Member
+  locked: Boolean!
 }
-```
 
-**Response:**
-```json
-{
-  "success": true,
-  "token": "uuid-token",
-  "user_id": "user-uuid",
-  "session": { ... }
+type ClaimResult {
+  success: Boolean!
+  item: Item!
+  errorCode: String
+  message: String
+}
+
+type ReceiptUploadResult {
+  success: Boolean!
+  jobId: ID!
+  message: String!
+}
+
+type JoinSessionResult {
+  success: Boolean!
+  token: String!
+  member: Member!
+  session: Session!
+}
+
+type CreateSessionResult {
+  success: Boolean!
+  token: String!
+  member: Member!
+  session: Session!
 }
 ```
 
 ---
 
-### 2.2 Items
+### 2.2 Queries
 
-#### `POST /api/item/:item_id/claim`
-Attempt to claim an item. Goes through locking logic.
-
-**Headers:** `Authorization: Bearer <token>`
-
-**Request body:**
-```json
-{
-  "user_id": "user-uuid"
-}
-```
-
-**Success response:**
-```json
-{
-  "success": true,
-  "item": {
-    "id": "item-uuid",
-    "claimed_by": "user-uuid"
-  }
-}
-```
-
-**Failure response (race condition loser):**
-```json
-{
-  "success": false,
-  "error_code": "ITEM_ALREADY_CLAIMED",
-  "message": "This item was just claimed by someone else.",
-  "item": {
-    "id": "item-uuid",
-    "claimed_by": "other-user-uuid"
-  }
+```graphql
+type Query {
+  # Fetch the full session with all nested data, including members, items, claims
+  session(id: ID!): Session!
 }
 ```
 
 ---
 
-#### `POST /api/item/:item_id/release`
-Release a previously claimed item.
+### 2.3 Mutations
 
-**Headers:** `Authorization: Bearer <token>`
+```graphql
+type Mutation {
+  # Create a new bill session
+  createSession(displayName: String!): CreateSessionResult!
 
-**Request body:**
-```json
-{
-  "user_id": "user-uuid"
-}
-```
+  # Join an existing session via link or QR code
+  joinSession(sessionId: ID!, displayName: String!): JoinSessionResult!
 
-**Response:**
-```json
-{
-  "success": true,
-  "item": {
-    "id": "item-uuid",
-    "claimed_by": null
-  }
-}
-```
+  # Attempt to claim an item, goes through locking logic
+  claimItem(itemId: ID!, userId: ID!): ClaimResult!
 
----
+  # Release a previously claimed item
+  releaseItem(itemId: ID!, userId: ID!): ClaimResult!
 
-### 2.3 Receipt
-
-#### `POST /api/receipt/upload`
-Upload a receipt image. Server immediately enqueues an OCR job in Redis and returns. It does not wait for processing.
-
-**Headers:** `Authorization: Bearer <token>`  
-**Content-Type:** `multipart/form-data`
-
-**Request body:**
-```
-session_id: "abc123"
-image: <file>
-```
-
-**Response (immediate, before OCR starts):**
-```json
-{
-  "success": true,
-  "job_id": "job-uuid",
-  "message": "Receipt upload received. Processing in background."
+  # Upload a receipt image, enqueues OCR job and returns immediately
+  uploadReceipt(sessionId: ID!, file: Upload!): ReceiptUploadResult!
 }
 ```
 
 ---
 
-## 3. WebSocket
+## 3. WebSocket Events
 
 All WebSocket messages are JSON with a top level `event` field.
 
----
-
-### 3.1 Events broadcast by server to all clients
+### Events broadcast by server to all clients
 
 #### `ITEM_CLAIMED`
 Sent when a user successfully claims an item.
@@ -247,7 +173,7 @@ Sent when an item is being processed during a claim attempt (race condition buff
 ```
 
 #### `OCR_ITEM_PARSED`
-Sent once per item as the OCR worker parses the receipt, enabling live streaming of items.
+Sent once per item as the OCR worker parses the receipt, enabling live streaming of items appearing one by one.
 ```json
 {
   "event": "OCR_ITEM_PARSED",
@@ -288,7 +214,7 @@ Sent when the lite agent accepts or rejects an item on behalf of a disconnected 
 {
   "event": "AGENT_ACTION",
   "item_id": "item-uuid",
-  "action": "ACCEPTED" | "REJECTED",
+  "action": "ACCEPTED or REJECTED",
   "on_behalf_of": "user-uuid",
   "display_name": "Chris"
 }
@@ -296,18 +222,47 @@ Sent when the lite agent accepts or rejects an item on behalf of a disconnected 
 
 ---
 
-## 4. Error Response Shape
+## 4. Error Handling
 
-All errors follow this shape:
+GraphQL errors follow the standard GraphQL error format:
+
 ```json
 {
-  "success": false,
-  "error_code": "ERROR_CODE_HERE",
-  "message": "Human readable message"
+  "data": null,
+  "errors": [
+    {
+      "message": "Human readable message",
+      "extensions": {
+        "code": "ERROR_CODE_HERE"
+      }
+    }
+  ]
+}
+```
+
+For mutation results like `claimItem` where partial success is meaningful, errors are returned in the result type itself rather than the GraphQL errors array:
+
+```json
+{
+  "data": {
+    "claimItem": {
+      "success": false,
+      "errorCode": "ITEM_ALREADY_CLAIMED",
+      "message": "This item was just claimed by someone else.",
+      "item": {
+        "id": "item-uuid",
+        "claimedBy": {
+          "id": "other-user-uuid",
+          "displayName": "Joanna"
+        }
+      }
+    }
+  }
 }
 ```
 
 **Error codes:**
+
 | Code | Meaning |
 |------|---------|
 | `ITEM_ALREADY_CLAIMED` | Race condition loser - item was claimed by someone else |
