@@ -13,14 +13,14 @@ This RFC defines how receipt images are uploaded, stored, and handed off to the 
 
 ## 1. Upload Flow
 
-1. User uploads image via `POST /api/receipt/upload`
-2. Server validates file (type, size)
-3. Server stores image in Supabase Storage
-4. Server enqueues OCR job in Redis with image path
-5. Server immediately returns `job_id` to client
-6. Client listens on WebSocket for `OCR_ITEM_PARSED` events
+1. User submits the `uploadReceipt` GraphQL mutation with the image file and session ID
+2. Server validates the file (type, size)
+3. Server stores the image in Supabase Storage
+4. Server enqueues an OCR job in Redis with the image path
+5. Server immediately returns a `jobId` to the client
+6. Client listens on WebSocket for `OCR_ITEM_PARSED` events as items are parsed
 
-The server should never wait for OCR to complete before responding. If the user has to wait several seconds for the upload response, this requirement is not met.
+The server must never wait for OCR to complete before responding. If the user has to wait several seconds for the mutation response, this requirement is not met.
 
 ---
 
@@ -30,14 +30,19 @@ The server should never wait for OCR to complete before responding. If the user 
 |----------|-------|
 | Accepted formats | Any image format (JPEG, PNG, etc) |
 | Max file size | 10MB |
-| Content-Type header | Must start with `image/` |
 
-If the file exceeds 10MB or is not an image, the server returns:
+If the file exceeds 10MB or is not an image, the server returns a GraphQL error:
 ```json
 {
-  "success": false,
-  "error_code": "INVALID_FILE",
-  "message": "File must be an image under 10MB."
+  "data": null,
+  "errors": [
+    {
+      "message": "File must be an image under 10MB.",
+      "extensions": {
+        "code": "INVALID_FILE"
+      }
+    }
+  ]
 }
 ```
 
@@ -70,15 +75,19 @@ The OCR worker picks this job up and processes it asynchronously.
 
 ---
 
-## 5. Immediate Server Response
+## 5. Immediate Mutation Response
 
 The server responds immediately after enqueuing the job, before OCR starts:
 
 ```json
 {
-  "success": true,
-  "job_id": "job-uuid",
-  "message": "Receipt upload received. Processing in background."
+  "data": {
+    "uploadReceipt": {
+      "success": true,
+      "jobId": "job-uuid",
+      "message": "Receipt upload received. Processing in background."
+    }
+  }
 }
 ```
 
@@ -90,6 +99,6 @@ The client then listens for `OCR_ITEM_PARSED` WebSocket events to display items 
 
 | Scenario | Behavior |
 |----------|----------|
-| Supabase Storage upload fails | Return `500` with `STORAGE_ERROR`, do not enqueue job |
-| Redis enqueue fails | Return `500` with `QUEUE_ERROR`, delete the uploaded image |
-| File is too large or wrong type | Return `400` with `INVALID_FILE` before attempting storage |
+| Supabase Storage upload fails | Return `STORAGE_ERROR`, do not enqueue job |
+| Redis enqueue fails | Return `QUEUE_ERROR`, delete the uploaded image |
+| File is too large or wrong type | Return `INVALID_FILE` before attempting storage |
