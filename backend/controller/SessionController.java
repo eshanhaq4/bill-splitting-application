@@ -10,19 +10,19 @@ public class SessionController {
 
     @QueryMapping
     public Session session(@Argument String id) {
-        // TODO: fetch session from database
+        // TODO: need to fetch session from database
         return null;
     }
 
     @MutationMapping
     public CreateSessionResult createSession(@Argument String displayName) {
-        // TODO: create session in database, generate token
+        // TODO: need to create session in database, generate token
         return null;
     }
 
     @MutationMapping
     public JoinSessionResult joinSession(@Argument String sessionId, @Argument String displayName) {
-        // TODO: join session, generate token
+        // TODO: code to join session, generate token
         return null;
     }
 }
