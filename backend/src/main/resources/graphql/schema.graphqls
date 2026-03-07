@@ -1,0 +1,72 @@
+type Query {
+    session(id: ID!): Session!
+}
+
+type Mutation {
+    createSession(displayName: String!): CreateSessionResult!
+    joinSession(sessionId: ID!, displayName: String!): JoinSessionResult!
+    claimItem(itemId: ID!, userId: ID!): ClaimResult!
+    releaseItem(itemId: ID!, userId: ID!): ClaimResult!
+    uploadReceipt(sessionId: ID!, file: Upload!): ReceiptUploadResult!
+}
+
+type Session {
+    id: ID!
+    status: SessionStatus!
+    members: [Member!]!
+    items: [Item!]!
+    tax: Float
+    tip: Float
+    joinUrl: String!
+    qrCodeUrl: String!
+}
+
+enum SessionStatus {
+    WAITING
+    ACTIVE
+    CLOSED
+}
+
+type Member {
+    id: ID!
+    displayName: String!
+    connected: Boolean!
+    token: String
+}
+
+type Item {
+    id: ID!
+    name: String!
+    price: Float!
+    category: String
+    quantity: Int!
+    claimedBy: Member
+    locked: Boolean!
+}
+
+type ClaimResult {
+    success: Boolean!
+    item: Item!
+    errorCode: String
+    message: String
+}
+
+type ReceiptUploadResult {
+    success: Boolean!
+    jobId: ID!
+    message: String!
+}
+
+type JoinSessionResult {
+    success: Boolean!
+    token: String!
+    member: Member!
+    session: Session!
+}
+
+type CreateSessionResult {
+    success: Boolean!
+    token: String!
+    member: Member!
+    session: Session!
+}
