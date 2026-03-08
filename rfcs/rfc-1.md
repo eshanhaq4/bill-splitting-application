@@ -68,7 +68,6 @@ type Item {
   name: String!
   price: Float!
   category: String
-  quantity: Int!
   claimedBy: Member
   locked: Boolean!
 }
@@ -270,3 +269,4 @@ For mutation results like `claimItem` where partial success is meaningful, error
 | `SESSION_NOT_FOUND` | Session ID does not exist |
 | `UNAUTHORIZED` | Missing or invalid token |
 | `INVALID_REQUEST` | Malformed request body |
+| `DISPLAY_NAME_TAKEN` | Display name already in use within this session |
