@@ -19,6 +19,10 @@ public class BackendApplication {
 		System.setProperty("DB_USERNAME", dotenv.get("DB_USERNAME"));
 		System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
 
+		System.setProperty("REDIS_HOST", dotenv.get("REDIS_HOST", "localhost"));
+		System.setProperty("REDIS_PORT", dotenv.get("REDIS_PORT", "6379"));
+		System.setProperty("REDIS_PASSWORD", dotenv.get("REDIS_PASSWORD", ""));
+
 		SpringApplication.run(BackendApplication.class, args);
 	}
 }
