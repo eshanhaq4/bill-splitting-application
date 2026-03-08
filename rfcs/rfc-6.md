@@ -67,18 +67,21 @@ There is no FAILED state.
 
 **Join URL:**
 
-  https://yourapp.com/join/<sessionId>
+  https://yourapp.com/join/{sessionId}
+
+Where `{sessionId}` is the session's UUID returned from
+`createSession`. The frontend uses this ID to establish
+the WebSocket connection and fetch initial session state.
 
 **QR Code URL** is constructed server-side and returned 
 as `qrCodeUrl` in the Session type. No QR infrastructure 
 is needed — the server constructs the string using a 
 free encoding service:
 
-  https://api.qrserver.com/v1/create-qr-code/?data=<joinUrl>
+  https://api.qrserver.com/v1/create-qr-code/?data={joinUrl}
 
 Both fields are returned from `createSession` and 
 available via the `session` query.
-
 ---
 
 ## 4. Display Name Uniqueness
