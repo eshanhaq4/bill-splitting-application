@@ -1,27 +1,29 @@
 package com.billsplit.backend.model;
 
 import jakarta.persistence.*;
-import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "sessions")
-public class Session {
+@Table(name = "claims")
+public class Claim {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
-    private String status = "WAITING";
+    @ManyToOne
+    @JoinColumn(name = "item_id")
+    private Item item;
 
-    private BigDecimal tax;
-    private BigDecimal tip;
+    @ManyToOne
+    @JoinColumn(name = "member_id")
+    private Member member;
 
     @Column(name = "created_at")
     private OffsetDateTime createdAt;
 
+    // Getters and Setters
 
     public UUID getId() {
         return id;
@@ -31,28 +33,20 @@ public class Session {
         this.id = id;
     }
 
-    public String getStatus() {
-        return status;
+    public Item getItem() {
+        return item;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public void setItem(Item item) {
+        this.item = item;
     }
 
-    public BigDecimal getTax() {
-        return tax;
+    public Member getMember() {
+        return member;
     }
 
-    public void setTax(BigDecimal tax) {
-        this.tax = tax;
-    }
-
-    public BigDecimal getTip() {
-        return tip;
-    }
-
-    public void setTip(BigDecimal tip) {
-        this.tip = tip;
+    public void setMember(Member member) {
+        this.member = member;
     }
 
     public OffsetDateTime getCreatedAt() {
