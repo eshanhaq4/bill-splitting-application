@@ -115,7 +115,6 @@ type Item = {
     name: string
     price: number
     category?: string
-    quantity: number
     claimedBy?: Member | null
     locked: boolean
 }
