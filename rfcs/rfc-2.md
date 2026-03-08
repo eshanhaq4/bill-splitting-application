@@ -55,10 +55,9 @@ The parsed item is:
 
 name: "Burger"
 price: 15.00
-quantity: 1
 category: "food"
 
-Parsed items must match the structure used by the Item GraphQL type defined in RFC-1, which includes the item’s id, name, price, category, and quantity. Each parsed item is inserted into the Item table before emitting the event.
+Parsed items must match the structure used by the Item GraphQL type defined in RFC-1, which includes the item’s id, name, price, and category. Each parsed item is inserted into the Item table before emitting the event.
 
 ## 4. Streaming Parsed Items
 
@@ -75,7 +74,6 @@ After each item is persisted, the worker emits the following WebSocket event def
     "name": "Burger",
     "price": 15.00,
     "category": "meat",
-    "quantity": 1
   }
 }
 
