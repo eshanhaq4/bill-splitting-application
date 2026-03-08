@@ -21,11 +21,23 @@ public class ItemClaimService {
 
     @Transactional
     public ClaimResult claimItem(String itemId, String userId) {
-        Item item = itemRepository.findById(UUID.fromString(itemId))
-                .orElseThrow(() -> new RuntimeException("ITEM_NOT_FOUND"));
+        Item item = itemRepository.findById(UUID.fromString(itemId)).orElse(null);
+        if (item == null) {
+            ClaimResult result = new ClaimResult();
+            result.setSuccess(false);
+            result.setErrorCode("ITEM_NOT_FOUND");
+            result.setMessage("Item not found.");
+            return result;
+        }
 
-        Member member = memberRepository.findById(UUID.fromString(userId))
-                .orElseThrow(() -> new RuntimeException("UNAUTHORIZED"));
+        Member member = memberRepository.findById(UUID.fromString(userId)).orElse(null);
+        if (member == null) {
+            ClaimResult result = new ClaimResult();
+            result.setSuccess(false);
+            result.setErrorCode("UNAUTHORIZED");
+            result.setMessage("Member not found.");
+            return result;
+        }
 
         String sessionId = item.getSession().getId().toString();
 
@@ -72,11 +84,24 @@ public class ItemClaimService {
 
     @Transactional
     public ClaimResult releaseItem(String itemId, String userId) {
-        Item item = itemRepository.findById(UUID.fromString(itemId))
-                .orElseThrow(() -> new RuntimeException("ITEM_NOT_FOUND"));
+        Item item = itemRepository.findById(UUID.fromString(itemId)).orElse(null);
+        if (item == null) {
+            ClaimResult result = new ClaimResult();
+            result.setSuccess(false);
+            result.setErrorCode("ITEM_NOT_FOUND");
+            result.setMessage("Item not found.");
+            return result;
+        }
 
-        Member member = memberRepository.findById(UUID.fromString(userId))
-                .orElseThrow(() -> new RuntimeException("UNAUTHORIZED"));
+        Member member = memberRepository.findById(UUID.fromString(userId)).orElse(null);
+        if (member == null) {
+            ClaimResult result = new ClaimResult();
+            result.setSuccess(false);
+            result.setErrorCode("UNAUTHORIZED");
+            result.setMessage("Member is unauthorized.");
+            return result;
+        }
+
 
         String sessionId = item.getSession().getId().toString();
 
