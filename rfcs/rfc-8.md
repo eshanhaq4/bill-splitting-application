@@ -22,6 +22,8 @@ This RFC defines how receipt images are uploaded, stored, and handed off to the 
 
 The server should never wait for OCR to complete before responding. If the user has to wait several seconds for the upload response, this requirement is not met.
 
+Only the session leader may call this mutation. If a non-leader member calls it, return UNAUTHORIZED.
+
 ---
 
 ## 2. File Constraints
