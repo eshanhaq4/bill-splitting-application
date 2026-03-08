@@ -23,7 +23,7 @@ public class Member {
     private String displayName;
 
     @Column(name = "token")
-    private String token;
+    private UUID token;
 
     @Column(name = "connected")
     private Boolean connected;

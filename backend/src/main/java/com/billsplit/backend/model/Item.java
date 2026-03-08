@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import java.time.OffsetDateTime;
 import java.util.UUID;
+import java.math.BigDecimal;
 
 @Data
 @Entity
@@ -22,7 +23,7 @@ public class Item {
     private String name;
 
     @Column(nullable = false)
-    private Float price;
+    private BigDecimal price;
 
     private String category;
 

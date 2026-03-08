@@ -7,7 +7,9 @@ type Mutation {
     joinSession(sessionId: ID!, displayName: String!): JoinSessionResult!
     claimItem(itemId: ID!, userId: ID!): ClaimResult!
     releaseItem(itemId: ID!, userId: ID!): ClaimResult!
-    uploadReceipt(sessionId: ID!, file: Upload!): ReceiptUploadResult!
+
+    # Temporarily remove this from the schema for now
+    # uploadReceipt(sessionId: ID!, filePath: String!): ReceiptUploadResult!
 }
 
 type Session {
