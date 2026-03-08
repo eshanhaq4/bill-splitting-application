@@ -12,8 +12,9 @@ managed throughout their lifecycle. It covers anonymous
 token authentication, session state transitions, member 
 presence tracking, and reconnection behavior.
 
-**RFC-1 Amendment:** This RFC adds `DISPLAY_NAME_TAKEN` 
-to the global error code registry defined in RFC-1 §4.
+**RFC-1 Amendments:** 
+- Adds `DISPLAY_NAME_TAKEN` to the global error code registry defined in RFC-1 §4
+- Removes `quantity` field from the `Item` type in RFC-1 §2.1
 
 ---
 
@@ -35,14 +36,16 @@ name. No login or email required.
 **Token is never re-issued.** If a user clears 
 localStorage they lose their session identity.
 
+The member who calls `createSession` is assigned the 
+`LEADER` role. Only the `LEADER` may call `uploadReceipt`.
+
 ---
 
 ## 2. Session State Machine
 
 Sessions move through three states:
-```
-WAITING → ACTIVE → CLOSED
-```
+
+  WAITING → ACTIVE → CLOSED
 
 | State   | Meaning                                          |
 |---------|--------------------------------------------------|
@@ -63,17 +66,15 @@ There is no FAILED state.
 ## 3. Join via Link & QR Code
 
 **Join URL:**
-```
-https://yourapp.com/join/<sessionId>
-```
+
+  https://yourapp.com/join/<sessionId>
 
 **QR Code URL** is constructed server-side and returned 
 as `qrCodeUrl` in the Session type. No QR infrastructure 
 is needed — the server constructs the string using a 
 free encoding service:
-```
-https://api.qrserver.com/v1/create-qr-code/?data=<joinUrl>
-```
+
+  https://api.qrserver.com/v1/create-qr-code/?data=<joinUrl>
 
 Both fields are returned from `createSession` and 
 available via the `session` query.
@@ -89,6 +90,12 @@ ambiguity on the client when displaying claims.
 **DB constraint:** `UNIQUE(session_id, display_name)`
 
 **On violation:** return `DISPLAY_NAME_TAKEN` (see §7)
+
+**Migration required:**
+
+  ALTER TABLE members 
+  ADD CONSTRAINT unique_display_name_per_session 
+  UNIQUE (session_id, display_name);
 
 ---
 
@@ -106,7 +113,7 @@ ambiguity on the client when displaying claims.
 
 **On Redis job firing (2 min elapsed):**
 1. Lite Agent takes over the member's session
-2. See RFC-7 for agent behavior
+2. See RFC-5 for agent behavior
 
 Redis is used over in-memory timers so that the 
 countdown survives a server crash or restart.
@@ -117,28 +124,57 @@ countdown survives a server crash or restart.
 
 **Member table:**
 
-| Column    | Type                  | Constraints         |
-|-----------|-----------------------|---------------------|
-| token     | VARCHAR               | UNIQUE, NOT NULL    |
-| connected | BOOLEAN               | DEFAULT true        |
+| Column    | Type                 | Constraints              |
+|-----------|----------------------|--------------------------|
+| token     | VARCHAR              | UNIQUE, NOT NULL         |
+| connected | BOOLEAN              | DEFAULT true             |
+| role      | ENUM(LEADER, MEMBER) | NOT NULL, DEFAULT MEMBER |
 
 **Session table:**
 
-| Column | Type                          | Constraints  |
-|--------|-------------------------------|--------------|
-| status | ENUM(WAITING, ACTIVE, CLOSED) | NOT NULL     |
+| Column | Type                          | Constraints               |
+|--------|-------------------------------|---------------------------|
+| status | ENUM(WAITING, ACTIVE, CLOSED) | NOT NULL, DEFAULT WAITING |
 
-**Constraints:**
-- `UNIQUE(session_id, display_name)`
-- `UNIQUE(token)`
+**Items table:**
+
+| Change   | Column   | Reason                                         |
+|----------|----------|------------------------------------------------|
+| DROPPED  | quantity | Multiple quantities are represented as separate|
+|          |          | rows, each with a unique ID, so they can be    |
+|          |          | claimed independently by different members     |
+
+**Full migration:**
+
+  CREATE TYPE member_role AS ENUM ('LEADER', 'MEMBER');
+  CREATE TYPE session_status AS ENUM ('WAITING', 'ACTIVE', 'CLOSED');
+
+  ALTER TABLE members
+  ADD COLUMN role member_role NOT NULL DEFAULT 'MEMBER';
+
+  ALTER TABLE members
+  ADD COLUMN token VARCHAR UNIQUE NOT NULL;
+
+  ALTER TABLE members
+  ADD COLUMN connected BOOLEAN NOT NULL DEFAULT true;
+
+  ALTER TABLE members
+  ADD CONSTRAINT unique_display_name_per_session
+  UNIQUE (session_id, display_name);
+
+  ALTER TABLE sessions
+  ADD COLUMN status session_status NOT NULL DEFAULT 'WAITING';
+
+  ALTER TABLE items
+  DROP COLUMN quantity;
 
 ---
 
 ## 7. Error Codes Added
 
-| Code                 | Meaning                                   |
-|----------------------|-------------------------------------------|
-| `DISPLAY_NAME_TAKEN` | displayName already exists in this session|
+| Code                 | Meaning                                    |
+|----------------------|--------------------------------------------|
+| `DISPLAY_NAME_TAKEN` | displayName already exists in this session |
 
 ---
 
@@ -146,4 +182,4 @@ countdown survives a server crash or restart.
 
 - Password protection for sessions
 - Session expiry / cleanup (future RFC)
-- Lite Agent logic (RFC-7)
+- Lite Agent logic (RFC-5)
