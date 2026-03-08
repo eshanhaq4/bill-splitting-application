@@ -1,10 +1,14 @@
 package com.billsplit.backend.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
+import org.hibernate.annotations.CreationTimestamp;
+import java.util.List;
 import java.util.UUID;
 
+@Data
 @Entity
 @Table(name = "sessions")
 public class Session {
@@ -13,53 +17,29 @@ public class Session {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status = "WAITING";
+    private SessionStatus status = SessionStatus.WAITING;
 
     private BigDecimal tax;
     private BigDecimal tip;
 
-    @Column(name = "created_at")
-    private OffsetDateTime createdAt;
+    @Transient
+    private String joinUrl;
 
+    @Transient
+    private String qrCodeUrl;
 
-    public UUID getId() {
-        return id;
-    }
+    @OneToMany(mappedBy = "session")
+    private List<Member> members;
 
-    public void setId(UUID id) {
-        this.id = id;
-    }
+    @Transient
+    private Member leader;
 
-    public String getStatus() {
-        return status;
-    }
+    @OneToMany(mappedBy = "session")
+    private List<Item> items;
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public BigDecimal getTax() {
-        return tax;
-    }
-
-    public void setTax(BigDecimal tax) {
-        this.tax = tax;
-    }
-
-    public BigDecimal getTip() {
-        return tip;
-    }
-
-    public void setTip(BigDecimal tip) {
-        this.tip = tip;
-    }
-
-    public OffsetDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(OffsetDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 }

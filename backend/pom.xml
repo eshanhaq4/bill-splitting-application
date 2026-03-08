@@ -90,6 +90,11 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- GraphQL -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-graphql</artifactId>
+          
         <!-- Web socket -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
