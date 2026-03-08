@@ -21,6 +21,7 @@ type Session {
     tip: Float
     joinUrl: String!
     qrCodeUrl: String!
+    leader: Member!
 }
 
 enum SessionStatus {
@@ -41,7 +42,6 @@ type Item {
     name: String!
     price: Float!
     category: String
-    quantity: Int!
     claimedBy: Member
     locked: Boolean!
 }

@@ -33,6 +33,10 @@ public class SessionService {
             member = memberRepository.save(member);
             System.out.println("Member created: " + member.getId());
 
+            // Set leader
+            session.setLeader(member);
+            session = sessionRepository.save(session);
+
             // Set join URL and QR code URL
             session.setJoinUrl("http://localhost:8080/session/" + session.getId() + "/join");
             session.setQrCodeUrl("http://localhost:8080/qr/" + session.getId());

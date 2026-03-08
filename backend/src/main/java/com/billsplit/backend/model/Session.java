@@ -33,6 +33,9 @@ public class Session {
     @OneToMany(mappedBy = "session")
     private List<Member> members;
 
+    @Transient
+    private Member leader;
+
     @OneToMany(mappedBy = "session")
     private List<Item> items;
 
