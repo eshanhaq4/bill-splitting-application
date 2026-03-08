@@ -1,33 +1,33 @@
 package com.billsplit.backend.controller;
 
+import com.billsplit.backend.model.*;
+import com.billsplit.backend.service.SessionService;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
 
-import com.billsplit.backend.model.Session;
-import com.billsplit.backend.model.CreateSessionResult;
-import com.billsplit.backend.model.JoinSessionResult;
-import com.billsplit.backend.model.Member;
-
 @Controller
 public class SessionController {
 
+    private final SessionService sessionService;
+
+    public SessionController(SessionService sessionService) {
+        this.sessionService = sessionService;
+    }
+
     @QueryMapping
     public Session session(@Argument String id) {
-        // TODO: need to fetch session from database
-        return null;
+        return sessionService.getSession(id);
     }
 
     @MutationMapping
     public CreateSessionResult createSession(@Argument String displayName) {
-        // TODO: need to create session in database, generate token
-        return null;
+        return sessionService.createSession(displayName);
     }
 
     @MutationMapping
     public JoinSessionResult joinSession(@Argument String sessionId, @Argument String displayName) {
-        // TODO: code to join session, generate token
-        return null;
+        return sessionService.joinSession(sessionId, displayName);
     }
 }

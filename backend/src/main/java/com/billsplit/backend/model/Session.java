@@ -3,7 +3,8 @@ package com.billsplit.backend.model;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
+import org.hibernate.annotations.CreationTimestamp;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,6 +36,7 @@ public class Session {
     @OneToMany(mappedBy = "session")
     private List<Item> items;
 
-    @Column(name = "created_at")
-    private OffsetDateTime createdAt;
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 }

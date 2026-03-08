@@ -2,7 +2,8 @@ package com.billsplit.backend.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
+import org.hibernate.annotations.CreationTimestamp;
 import java.util.UUID;
 
 @Data
@@ -28,6 +29,7 @@ public class Member {
     @Column(name = "connected")
     private Boolean connected;
 
-    @Column(name = "created_at")
-    private OffsetDateTime createdAt;
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
 }
