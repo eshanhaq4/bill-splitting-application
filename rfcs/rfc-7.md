@@ -65,7 +65,7 @@ For a given user:
 - `userSubtotal` = sum of prices of items claimed by that user
 - `totalSubtotal` = sum of prices of all items
 - `userTaxShare` = totalTax * (userSubtotal / totalSubtotal)
-- `userTipShare` = totalTip * (userSubtotal / claimedSubtotal)
+- `userTipShare` = totalTip * (userSubtotal / totalSubtotal)
 - `userTotal` = userSubtotal + userTaxShare + userTipShare
 - `claimedTotal` = sum of prices of all claimed items in the session including their share of tax and tip
 
