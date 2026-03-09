@@ -41,3 +41,4 @@ public class SupabaseStorageService {
             throw new IOException("Failed to download file from Supabase: " + connection.getResponseMessage());
         }
     }
+}

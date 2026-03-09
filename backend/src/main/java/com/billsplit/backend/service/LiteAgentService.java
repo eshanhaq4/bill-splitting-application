@@ -54,9 +54,9 @@ public class LiteAgentService {
             
             String category = item.getCategory().trim().toUpperCase();
             if (category.equals("NONE")) {
-                ClaimResult result = itemClaimService.claimItem(member.getId(), item.getId());
+                ClaimResult result = itemClaimService.claimItem(item.getId().toString(), memberId);
                 if (result.isSuccess()) {
-                    sessionEventPublisher.publish(member.getSession().getId(), "AGENT_ACTION", Map.of(
+                    sessionEventPublisher.publish(member.getSession().getId().toString(), "AGENT_ACTION", Map.of(
                         "action", "REJECTED",
                         "itemId", item.getId().toString(),
                         "memberId", member.getId().toString(),
