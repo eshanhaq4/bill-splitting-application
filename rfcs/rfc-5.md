@@ -22,7 +22,6 @@ The agent acts only on behalf of the disconnected member and applies the followi
 | Rule | Behavior |
 |------|----------|
 | Dietary preference | If `item.category == "meat"` and the disconnected member’s stored `dietary_preference` is `VEGETARIAN` or `VEGAN`, reject |
-| Low-cost default | If `item.price < 15` and `item.category != "alcohol"`: accept |
 | Locked items | Skip items that are currently locked by another user |
 | Already resolved | Skip items that are already accepted/rejected by someone else |
 | Fair-share cap | Agent stops after reaching `floor(unresolved items / number of members)` accepted items |
