@@ -45,6 +45,8 @@ export const GET_SESSION = gql`
   query GetSession($id: ID!) {
     session(id: $id) {
       id
+      tax
+      tip
       members {
         id
         displayName

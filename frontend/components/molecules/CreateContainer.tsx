@@ -41,24 +41,24 @@ export default function CreateContainer() {
             localStorage.setItem('displayName', name.trim());
 
             // try/catch in case receipt upload mutation does not work yet
-            // if (receiptFile) {
-            //     try {
-            //         const base64 = await toBase64(receiptFile);
-            //         const uploadData: any = await client.request(UPLOAD_RECEIPT, {
-            //             sessionId: session.id,
-            //             fileBase64: base64,
-            //             fileName: receiptFile.name,
-            //         });
+            if (receiptFile) {
+                try {
+                    const base64 = await toBase64(receiptFile);
+                    const uploadData: any = await client.request(UPLOAD_RECEIPT, {
+                        sessionId: session.id,
+                        fileBase64: base64,
+                        fileName: receiptFile.name,
+                    });
 
-            //         const { errorCode: uploadError, message: uploadMessage } = uploadData.uploadReceipt;
-            //         if (uploadError) {
-            //             console.error('Upload failed:', uploadMessage);
-            //         }
-            //     } catch (uploadErr) {
-            //         // Mutation not live yet — log and continue to receipt page anyway
-            //         console.warn('uploadReceipt not available yet:', uploadErr);
-            //     }
-            // }
+                    const { success, jobId, message: uploadMessage } = uploadData.uploadReceipt;
+                    if (!success) {
+                        console.error('Upload failed:', uploadMessage);
+                    }
+                } catch (uploadErr) {
+                    // Mutation not live yet — log and continue to receipt page anyway
+                    console.warn('uploadReceipt not available yet:', uploadErr);
+                }
+            }
 
             router.push(`/receipt/${session.id}`);
         } catch (err) {
