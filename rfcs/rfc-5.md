@@ -21,7 +21,7 @@ All items are already resolved
 The agent acts only on behalf of the disconnected member and applies the following rules to decide which unclaimed items to claim for them:
 | Rule | Behavior |
 |------|----------|
-| Dietary preference | If `item.category == "meat"` and the disconnected member is vegetarian: reject |
+| Dietary preference | If `item.category == "meat"` and the disconnected member’s stored `dietary_preference` is `VEGETARIAN` or `VEGAN`, reject |
 | Low-cost default | If `item.price < 15` and `item.category != "alcohol"`: accept |
 | Locked items | Skip items that are currently locked by another user |
 | Already resolved | Skip items that are already accepted/rejected by someone else |
@@ -56,6 +56,17 @@ Agent uses the `AGENT_ACTION` WebSocket event defined in RFC-1:
   "display_name": "Eshan"
 }
 ```
+
+## 6. Database Amendment
+
+The Lite Agent dietary rules store a dietary preference for each member. Thus, the database will be amended by adding a `dietary_preference` column to the `members` table.
+
+Supported values for now:
+- `NONE`
+- `VEGETARIAN`
+- `VEGAN`
+
+This value is collected when a member joins a session and it is used by the Lite Agent when evaluating any food-category items.
 
 ## Out of Scope
 Machine learning based claiming
