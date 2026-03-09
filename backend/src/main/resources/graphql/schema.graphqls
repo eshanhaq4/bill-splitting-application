@@ -8,7 +8,7 @@ type Mutation {
     claimItem(itemId: ID!, userId: ID!): ClaimResult!
     releaseItem(itemId: ID!, userId: ID!): ClaimResult!
 
-    uploadReceipt(sessionId: ID!, filePath: String!): ReceiptUploadResult!
+    uploadReceipt(sessionId: ID!, fileBase64: String!, fileName: String!): ReceiptUploadResult!
 }
 
 type Session {
@@ -60,7 +60,7 @@ type ClaimResult {
 
 type ReceiptUploadResult {
     success: Boolean!
-    jobId: ID!
+    jobId: ID
     message: String!
 }
 
