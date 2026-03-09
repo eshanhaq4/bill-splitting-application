@@ -4,7 +4,7 @@ export const UPLOAD_RECEIPT = gql`
   mutation UploadReceipt($sessionId: ID!, $fileBase64: String!, $fileName: String!) {
     uploadReceipt(sessionId: $sessionId, fileBase64: $fileBase64, fileName: $fileName) {
       success
-      errorCode
+      jobId
       message
     }
   }

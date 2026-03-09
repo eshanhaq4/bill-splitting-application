@@ -8,8 +8,7 @@ type Mutation {
     claimItem(itemId: ID!, userId: ID!): ClaimResult!
     releaseItem(itemId: ID!, userId: ID!): ClaimResult!
 
-    # Temporarily remove this from the schema for now
-    # uploadReceipt(sessionId: ID!, filePath: String!): ReceiptUploadResult!
+    uploadReceipt(sessionId: ID!, filePath: String!): ReceiptUploadResult!
 }
 
 type Session {

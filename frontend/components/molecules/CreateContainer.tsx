@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import client from '@/lib/graphql-request';
-import { CREATE_SESSION } from '@/lib/mutations';
+import { CREATE_SESSION, UPLOAD_RECEIPT } from '@/lib/mutations';
 
 const toBase64 = (file: File): Promise<string> =>
     new Promise((resolve, reject) => {

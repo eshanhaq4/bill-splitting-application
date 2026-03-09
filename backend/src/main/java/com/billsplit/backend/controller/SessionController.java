@@ -43,4 +43,12 @@ public class SessionController {
     public ClaimResult releaseItem(@Argument String itemId, @Argument String userId) {
         return sessionService.releaseItem(itemId, userId);
     }
+
+    @MutationMapping
+    public ReceiptUploadResult uploadReceipt(
+            @Argument String sessionId,
+            @Argument String fileBase64,
+            @Argument String fileName) {
+        return sessionService.uploadReceipt(sessionId, fileBase64, fileName);
+    }
 }

@@ -9,7 +9,7 @@ import lombok.AllArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ParsedItem {
+public class ParsedReceiptItem {
     private String name;
     private BigDecimal price;
 }
