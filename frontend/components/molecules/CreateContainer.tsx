@@ -16,19 +16,23 @@ const toBase64 = (file: File): Promise<string> =>
 export default function CreateContainer() {
     const [name, setName] = useState('');
     const [receiptFile, setReceiptFile] = useState<File | null>(null);
+    const [dietaryPreference, setDietaryPreference] = useState('');
     const [loading, setLoading] = useState(false);
     const router = useRouter();
 
     const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        if (!name.trim()) return;
+        if (!name.trim() || !dietaryPreference) return;
 
         setLoading(true);
 
         try {
-            const data: any = await client.request(CREATE_SESSION, { displayName: name.trim() });
-        const { session, member, success, token } = data.createSession;
+            const data: any = await client.request(CREATE_SESSION, {
+                displayName: name.trim(),
+                dietaryPreference,
+            });
+            const { session, member, success, token } = data.createSession;
 
             if (!success) {
                 console.error('Failed to create session');
@@ -39,6 +43,7 @@ export default function CreateContainer() {
             localStorage.setItem('memberId', member.id);
             localStorage.setItem('sessionId', session.id);
             localStorage.setItem('displayName', name.trim());
+            localStorage.setItem('dietaryPreference', dietaryPreference);
 
             // try/catch in case receipt upload mutation does not work yet
             // if (receiptFile) {
@@ -105,9 +110,27 @@ export default function CreateContainer() {
                         </p>
                     </div>
 
+                    <div>
+                        <label htmlFor="dietary-preference-create" className="mb-2 block text-sm font-semibold sm:text-base">
+                            Dietary Preference
+                        </label>
+                        <select
+                            id="dietary-preference-create"
+                            value={dietaryPreference}
+                            onChange={(event) => setDietaryPreference(event.target.value)}
+                            className="w-full rounded-lg border-2 border-emerald-500 bg-white px-3 py-2 text-sm text-slate-900 outline-none transition focus:border-emerald-400 focus:ring-2 focus:ring-emerald-400/50 sm:text-base"
+                            required
+                        >
+                            <option value="" disabled>Select one option</option>
+                            <option value="NONE">None</option>
+                            <option value="VEGETARIAN">Vegetarian</option>
+                            <option value="VEGAN">Vegan</option>
+                        </select>
+                    </div>
+
                     <button
                         type="submit"
-                        disabled={loading}
+                        disabled={loading || !name.trim() || !dietaryPreference}
                         className="w-full rounded-lg bg-white px-4 py-3 text-sm font-bold text-emerald-700 shadow-lg transition hover:bg-emerald-50 hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 sm:text-base"
                     >
                         {loading ? 'Creating...' : 'Create Session'}

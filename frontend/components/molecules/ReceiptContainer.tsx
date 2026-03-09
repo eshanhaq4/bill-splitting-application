@@ -6,8 +6,9 @@ interface ReceiptContainerProps {
     memberVisualsById: Record<string, MemberVisual>;
     currentMemberId: string;
     sessionId: string;
+    isItemsLoading: boolean;
 }
-export default function ReceiptContainer({ items, memberVisualsById, currentMemberId, sessionId }) {
+export default function ReceiptContainer({ items, memberVisualsById, currentMemberId, sessionId, isItemsLoading }: ReceiptContainerProps) {
     return (
         <div className="h-full min-h-0 w-full p-2 sm:p-3">
             <div className="flex h-full min-h-0 flex-col">
@@ -20,8 +21,9 @@ export default function ReceiptContainer({ items, memberVisualsById, currentMemb
                     <ItemsContainer
                         items={items}
                         memberVisualsById={memberVisualsById}
-                        currentMemberId={currentMemberId} 
-                        sessionId={sessionId} 
+                        currentMemberId={currentMemberId}
+                        sessionId={sessionId}
+                        isLoading={isItemsLoading}
                     />
                 </div>
             </div>

@@ -11,8 +11,8 @@ export const UPLOAD_RECEIPT = gql`
 `;
 
 export const CREATE_SESSION = gql`
-  mutation CreateSession($displayName: String!) {
-    createSession(displayName: $displayName) {
+  mutation CreateSession($displayName: String!, $dietaryPreference: String!) {
+    createSession(displayName: $displayName, dietaryPreference: $dietaryPreference) {
       success
       token
       member {
@@ -26,8 +26,8 @@ export const CREATE_SESSION = gql`
 `;
 
 export const JOIN_SESSION = gql`
-  mutation JoinSession($sessionId: ID!, $displayName: String!) {
-    joinSession(sessionId: $sessionId, displayName: $displayName) {
+  mutation JoinSession($sessionId: ID!, $displayName: String!, $dietaryPreference: String!) {
+    joinSession(sessionId: $sessionId, displayName: $displayName, dietaryPreference: $dietaryPreference) {
       session {
         id
       }
@@ -45,6 +45,9 @@ export const GET_SESSION = gql`
   query GetSession($id: ID!) {
     session(id: $id) {
       id
+      tax
+      tip
+      qrCodeUrl
       members {
         id
         displayName
