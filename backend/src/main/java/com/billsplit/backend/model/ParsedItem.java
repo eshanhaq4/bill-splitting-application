@@ -12,5 +12,4 @@ import lombok.AllArgsConstructor;
 public class ParsedItem {
     private String name;
     private BigDecimal price;
-    private String category;
 }
