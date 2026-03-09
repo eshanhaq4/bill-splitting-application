@@ -1,0 +1,65 @@
+package com.billsplit.backend.service;
+
+import com.billsplit.backend.model.ParsedReceiptItem;
+import org.springframework.stereotype.Service;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+@Service
+public class OcrParserService {
+    private static final Pattern ITEM_PATTERN = Pattern.compile("^(.*?)\\s+(\\d+\\.\\d{2})$");
+
+    public List<ParsedReceiptItem> extractItems(Path receiptImagePath) throws IOException, InterruptedException {
+        return parseReceipt(receiptImagePath);
+    }
+
+    private String runTesseract(Path imagePath) throws IOException, InterruptedException {
+        ProcessBuilder pb = new ProcessBuilder("tesseract", imagePath.toString(), "stdout");
+        Process process = pb.start();
+
+        StringBuilder output = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new java.io.InputStreamReader(process.getInputStream()))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line).append("\n");
+            }
+        }
+
+        int exitCode = process.waitFor();
+        if (exitCode != 0) {
+            throw new IOException("Tesseract exited with code " + exitCode);
+        }
+
+        return output.toString();
+    }
+
+    public List<ParsedReceiptItem> parseReceipt(Path receiptImagePath) throws IOException, InterruptedException {
+        List<ParsedReceiptItem> items = new ArrayList<>();
+
+        String ocrResult = runTesseract(receiptImagePath);
+        String[] lines = ocrResult.split("\\r?\\n");
+
+        for (String line : lines) {
+            String trimmedLine = line.trim();
+            if (trimmedLine.isEmpty()) continue;
+
+            Matcher matcher = ITEM_PATTERN.matcher(trimmedLine);
+            if (matcher.matches()) {
+                String name = matcher.group(1).trim();
+                if (name.isEmpty()) continue;
+
+                BigDecimal price = new BigDecimal(matcher.group(2));
+                items.add(new ParsedReceiptItem(name, price));
+            }
+        }
+
+        return items;
+    }
+}
