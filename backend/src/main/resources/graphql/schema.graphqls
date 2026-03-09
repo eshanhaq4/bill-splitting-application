@@ -4,7 +4,7 @@ type Query {
 
 type Mutation {
     createSession(displayName: String!): CreateSessionResult!
-    joinSession(sessionId: ID!, displayName: String!): JoinSessionResult!
+    joinSession(sessionId: ID!, displayName: String!, dietaryPreference: String): JoinSessionResult!
     claimItem(itemId: ID!, userId: ID!): ClaimResult!
     releaseItem(itemId: ID!, userId: ID!): ClaimResult!
 
@@ -41,6 +41,7 @@ type Member {
     connected: Boolean!
     token: String
     role: String!
+    dietaryPreference: String
 }
 
 type Item {
