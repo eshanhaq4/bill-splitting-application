@@ -27,8 +27,10 @@ public class SessionController {
     }
 
     @MutationMapping
-    public JoinSessionResult joinSession(@Argument String sessionId, @Argument String displayName) {
-        return sessionService.joinSession(sessionId, displayName);
+
+    public JoinSessionResult joinSession(@Argument String sessionId, @Argument String displayName,
+            @Argument String dietaryPreference) {
+        return sessionService.joinSession(sessionId, displayName, dietaryPreference);
     }
 
     @MutationMapping
