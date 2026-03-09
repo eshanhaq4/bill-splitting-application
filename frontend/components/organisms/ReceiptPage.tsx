@@ -38,8 +38,8 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
         isConnected: member.connected,
     }));
    
-    const qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=http://localhost:3000/join/session-123';
-
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=http://localhost:3000/join/${sessionId}`;
+    
     return (
         <div className="flex h-screen w-full flex-col">
             <ReceiptHeader members={members} qrCodeUrl={qrCodeUrl} />
