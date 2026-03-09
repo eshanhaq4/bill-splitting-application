@@ -36,11 +36,11 @@ public class SessionController {
 
     @MutationMapping
     public ClaimResult claimItem(@Argument String itemId, @Argument String userId) {
-        return itemClaimService.claimItem(itemId, userId);
+        return sessionService.claimItem(itemId, userId);
     }
 
     @MutationMapping
     public ClaimResult releaseItem(@Argument String itemId, @Argument String userId) {
-        return itemClaimService.releaseItem(itemId, userId);
+        return sessionService.releaseItem(itemId, userId);
     }
 }
