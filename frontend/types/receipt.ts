@@ -15,6 +15,6 @@ export interface Item {
     name: string;
     price: number;
     category?: string;
-    claimedBy?: Member | null;
+    claimedBy: Pick<Member, 'id'> | null;
     locked: boolean;
 }

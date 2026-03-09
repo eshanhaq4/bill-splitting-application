@@ -1,18 +1,71 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import client from '@/lib/graphql-request';
+import { CREATE_SESSION } from '@/lib/mutations';
 
-interface CreateContainerProps {
-    onCreateSession?: (payload: { name: string; receiptFile: File | null }) => void;
-}
+const toBase64 = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve((reader.result as string).split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
 
-export default function CreateContainer({ onCreateSession }: CreateContainerProps) {
+export default function CreateContainer() {
     const [name, setName] = useState('');
     const [receiptFile, setReceiptFile] = useState<File | null>(null);
+    const [loading, setLoading] = useState(false);
+    const router = useRouter();
 
-    const handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
         event.preventDefault();
-        onCreateSession?.({ name: name.trim(), receiptFile });
+
+        if (!name.trim()) return;
+
+        setLoading(true);
+
+        try {
+            const data: any = await client.request(CREATE_SESSION, { displayName: name.trim() });
+        const { session, member, success, token } = data.createSession;
+
+            if (!success) {
+                console.error('Failed to create session');
+                return;
+            }
+
+            localStorage.setItem('token', token); 
+            localStorage.setItem('memberId', member.id);
+            localStorage.setItem('sessionId', session.id);
+            localStorage.setItem('displayName', name.trim());
+
+            // try/catch in case receipt upload mutation does not work yet
+            // if (receiptFile) {
+            //     try {
+            //         const base64 = await toBase64(receiptFile);
+            //         const uploadData: any = await client.request(UPLOAD_RECEIPT, {
+            //             sessionId: session.id,
+            //             fileBase64: base64,
+            //             fileName: receiptFile.name,
+            //         });
+
+            //         const { errorCode: uploadError, message: uploadMessage } = uploadData.uploadReceipt;
+            //         if (uploadError) {
+            //             console.error('Upload failed:', uploadMessage);
+            //         }
+            //     } catch (uploadErr) {
+            //         // Mutation not live yet — log and continue to receipt page anyway
+            //         console.warn('uploadReceipt not available yet:', uploadErr);
+            //     }
+            // }
+
+            router.push(`/receipt/${session.id}`);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -37,10 +90,7 @@ export default function CreateContainer({ onCreateSession }: CreateContainerProp
                     </div>
 
                     <div>
-                        <label
-                            htmlFor="receipt-file"
-                            className="mb-2 block text-sm font-semibold sm:text-base"
-                        >
+                        <label htmlFor="receipt-file" className="mb-2 block text-sm font-semibold sm:text-base">
                             Upload Receipt
                         </label>
                         <input
@@ -57,9 +107,10 @@ export default function CreateContainer({ onCreateSession }: CreateContainerProp
 
                     <button
                         type="submit"
-                        className="w-full rounded-lg bg-white px-4 py-3 text-sm font-bold text-emerald-700 shadow-lg transition hover:bg-emerald-50 hover:scale-[1.02] active:scale-[0.98] sm:text-base"
+                        disabled={loading}
+                        className="w-full rounded-lg bg-white px-4 py-3 text-sm font-bold text-emerald-700 shadow-lg transition hover:bg-emerald-50 hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 sm:text-base"
                     >
-                        Create Session
+                        {loading ? 'Creating...' : 'Create Session'}
                     </button>
                 </div>
             </form>
