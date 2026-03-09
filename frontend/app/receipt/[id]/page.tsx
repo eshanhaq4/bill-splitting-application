@@ -1,7 +1,13 @@
-import ReceiptPage from '@/components/ReceiptPage';
+import { use } from 'react';
+import ReceiptPage from '@/components/organisms/ReceiptPage';
 
-export default function Home() {
+interface ReceiptPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function Home({ params }: ReceiptPageProps) {
+  const resolvedParams = use(params);
   return (
-    <ReceiptPage />
+    <ReceiptPage sessionId={resolvedParams.id} />
   );
 }
