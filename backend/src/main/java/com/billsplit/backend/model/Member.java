@@ -29,6 +29,11 @@ public class Member {
     @Column(name = "connected")
     private Boolean connected;
 
+    @Enumerated(EnumType.STRING)
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.NAMED_ENUM)
+    @Column(nullable = false, columnDefinition = "member_role")
+    private MemberRole role = MemberRole.MEMBER;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

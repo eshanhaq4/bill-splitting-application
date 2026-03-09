@@ -30,11 +30,17 @@ enum SessionStatus {
     CLOSED
 }
 
+enum MemberRole {
+    LEADER
+    MEMBER
+}
+
 type Member {
     id: ID!
     displayName: String!
     connected: Boolean!
     token: String
+    role: String!
 }
 
 type Item {

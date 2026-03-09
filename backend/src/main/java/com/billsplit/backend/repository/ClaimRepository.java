@@ -1,12 +1,10 @@
 package com.billsplit.backend.repository;
 
-import com.billsplit.backend.model.Item;
+import com.billsplit.backend.model.Claim;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.UUID;
-import java.util.List;
 
 @Repository
-public interface ItemRepository extends JpaRepository<Item, UUID> {
-    java.util.List<Item> findBySessionId(UUID sessionId);
+public interface ClaimRepository extends JpaRepository<Claim, UUID> {
 }

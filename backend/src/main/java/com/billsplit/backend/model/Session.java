@@ -30,13 +30,13 @@ public class Session {
     @Transient
     private String qrCodeUrl;
 
-    @OneToMany(mappedBy = "session")
+    @OneToMany(mappedBy = "session", fetch = FetchType.EAGER)
     private List<Member> members;
 
     @Transient
     private Member leader;
 
-    @OneToMany(mappedBy = "session")
+    @OneToMany(mappedBy = "session", fetch = FetchType.EAGER)
     private List<Item> items;
 
     @CreationTimestamp

@@ -28,9 +28,6 @@ public class Item {
     private String category;
 
     @Column(nullable = false)
-    private Integer quantity = 1;
-
-    @Column(nullable = false)
     private Boolean locked = false;
 
     @ManyToOne
