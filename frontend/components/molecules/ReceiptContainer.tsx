@@ -4,9 +4,10 @@ import { Item, MemberVisual } from '@/types/receipt';
 interface ReceiptContainerProps {
     items: Item[];
     memberVisualsById: Record<string, MemberVisual>;
+    currentMemberId: string;
+    sessionId: string;
 }
-
-export default function ReceiptContainer({ items, memberVisualsById }: ReceiptContainerProps) {
+export default function ReceiptContainer({ items, memberVisualsById, currentMemberId, sessionId }) {
     return (
         <div className="h-full min-h-0 w-full p-2 sm:p-3">
             <div className="flex h-full min-h-0 flex-col">
@@ -16,7 +17,12 @@ export default function ReceiptContainer({ items, memberVisualsById }: ReceiptCo
                 </div>
 
                 <div className="min-h-0 flex-1 pt-1">
-                    <ItemsContainer items={items} memberVisualsById={memberVisualsById} />
+                    <ItemsContainer
+                        items={items}
+                        memberVisualsById={memberVisualsById}
+                        currentMemberId={currentMemberId} 
+                        sessionId={sessionId} 
+                    />
                 </div>
             </div>
         </div>

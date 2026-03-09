@@ -1,0 +1,87 @@
+import { gql } from 'graphql-request';
+
+export const UPLOAD_RECEIPT = gql`
+  mutation UploadReceipt($sessionId: ID!, $fileBase64: String!, $fileName: String!) {
+    uploadReceipt(sessionId: $sessionId, fileBase64: $fileBase64, fileName: $fileName) {
+      success
+      errorCode
+      message
+    }
+  }
+`;
+
+export const CREATE_SESSION = gql`
+  mutation CreateSession($displayName: String!) {
+    createSession(displayName: $displayName) {
+      success
+      token
+      member {
+        id
+      }
+      session {
+        id
+      }
+    }
+  }
+`;
+
+export const JOIN_SESSION = gql`
+  mutation JoinSession($sessionId: ID!, $displayName: String!) {
+    joinSession(sessionId: $sessionId, displayName: $displayName) {
+      session {
+        id
+      }
+      member {
+        id
+        token
+      }
+      errorCode
+      message
+    }
+  }
+`;
+
+export const GET_SESSION = gql`
+  query GetSession($id: ID!) {
+    session(id: $id) {
+      id
+      members {
+        id
+        displayName
+        connected
+      }
+      items {
+        id
+        name
+        price
+        category
+        locked
+        claimedBy {
+          id
+          displayName
+          connected
+        }
+      }
+    }
+  }
+`;
+
+export const CLAIM_ITEM = gql`
+  mutation ClaimItem($itemId: ID!, $userId: ID!) {
+    claimItem(itemId: $itemId, userId: $userId) {
+      success
+      errorCode
+      message
+    }
+  }
+`;
+
+export const RELEASE_ITEM = gql`
+  mutation ReleaseItem($itemId: ID!, $userId: ID!) {
+    releaseItem(itemId: $itemId, userId: $userId) {
+      success
+      errorCode
+      message
+    }
+  }
+`;

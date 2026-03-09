@@ -1,17 +1,49 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter, useParams } from 'next/navigation';
+import client from '@/lib/graphql-request';
+import { JOIN_SESSION } from '@/lib/mutations';
 
-interface JoinContainerProps {
-    onJoinSession?: (payload: { name: string }) => void;
-}
-
-export default function JoinContainer({ onJoinSession }: JoinContainerProps) {
+export default function JoinContainer() {
     const [name, setName] = useState('');
+    const [loading, setLoading] = useState(false);
+    const router = useRouter();
+    const params = useParams();
 
-    const handleSubmit = (event: React.SyntheticEvent<HTMLFormElement>) => {
+    const sessionId = params?.sessionId as string;
+
+    const handleSubmit = async (event: React.SyntheticEvent<HTMLFormElement>) => {
         event.preventDefault();
-        onJoinSession?.({ name: name.trim() });
+
+        if (!name.trim() || !sessionId) return;
+
+        setLoading(true);
+
+        try {
+            const data: any = await client.request(JOIN_SESSION, {
+                sessionId,
+                displayName: name.trim(),
+            });
+
+            const { session, member, errorCode, message } = data.joinSession;
+
+            if (errorCode) {
+                console.error('Join failed:', message);
+                return;
+            }
+
+            localStorage.setItem('token', member.token);
+            localStorage.setItem('memberId', member.id);
+            localStorage.setItem('sessionId', session.id);
+            localStorage.setItem('displayName', name.trim());
+
+            router.push(`/receipt/${session.id}`);
+        } catch (err) {
+            console.error('Join error:', err);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -37,9 +69,10 @@ export default function JoinContainer({ onJoinSession }: JoinContainerProps) {
 
                     <button
                         type="submit"
-                        className="w-full rounded-lg bg-white px-4 py-3 text-sm font-bold text-emerald-700 shadow-lg transition hover:bg-emerald-50 hover:scale-[1.02] active:scale-[0.98] sm:text-base"
+                        disabled={loading}
+                        className="w-full rounded-lg bg-white px-4 py-3 text-sm font-bold text-emerald-700 shadow-lg transition hover:bg-emerald-50 hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70 sm:text-base"
                     >
-                        Join Session
+                        {loading ? 'Joining...' : 'Join Session'}
                     </button>
                 </div>
             </form>
