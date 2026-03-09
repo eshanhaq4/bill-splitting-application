@@ -40,6 +40,10 @@ public class LiteAgentService {
         String preference = member.getDietaryPreference().trim().toUpperCase();
         List<Item> items = itemRepository.findBySessionId(member.getSession().getId());
 
+        if (preference.equals("NONE")) {
+            return;
+        }
+
         for (Item item: items) {
             if (item.getClaimedBy() != null) {
                 continue;
@@ -48,6 +52,18 @@ public class LiteAgentService {
                 continue;
             }
             
-        }        
+            String category = item.getCategory().trim().toUpperCase();
+            if (category.equals("NONE")) {
+                ClaimResult result = itemClaimService.claimItem(member.getId(), item.getId());
+                if (result.isSuccess()) {
+                    sessionEventPublisher.publish(member.getSession().getId(), "AGENT_ACTION", Map.of(
+                        "action", "REJECTED",
+                        "itemId", item.getId().toString(),
+                        "memberId", member.getId().toString(),
+                        "displayName", member.getDisplayName()
+                    ));
+                }
+            }
+        } 
     }
 }
