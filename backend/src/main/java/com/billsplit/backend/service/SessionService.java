@@ -64,7 +64,7 @@ public class SessionService {
         }
     }
 
-    public JoinSessionResult joinSession(String sessionId, String displayName) {
+    public JoinSessionResult joinSession(String sessionId, String displayName, String dietaryPreference) {
         // Find the session
         Session session = sessionRepository.findById(UUID.fromString(sessionId))
                 .orElseThrow(() -> new RuntimeException("SESSION_NOT_FOUND"));
@@ -82,6 +82,9 @@ public class SessionService {
         member.setConnected(true);
         member.setSession(session);
         member.setRole(MemberRole.MEMBER);
+        if (dietaryPreference != null) {
+            member.setDietaryPreference(dietaryPreference);
+        }
 
         member = memberRepository.save(member);
 
