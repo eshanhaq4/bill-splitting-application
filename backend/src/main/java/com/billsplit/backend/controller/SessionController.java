@@ -6,14 +6,17 @@ import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.stereotype.Controller;
+import com.billsplit.backend.service.ItemClaimService;
 
 @Controller
 public class SessionController {
 
     private final SessionService sessionService;
+    private final ItemClaimService itemClaimService;
 
-    public SessionController(SessionService sessionService) {
+    public SessionController(SessionService sessionService, ItemClaimService itemClaimService) {
         this.sessionService = sessionService;
+        this.itemClaimService = itemClaimService;
     }
 
     @QueryMapping
