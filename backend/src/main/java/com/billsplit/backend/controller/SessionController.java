@@ -30,4 +30,14 @@ public class SessionController {
     public JoinSessionResult joinSession(@Argument String sessionId, @Argument String displayName) {
         return sessionService.joinSession(sessionId, displayName);
     }
+
+    @MutationMapping
+    public ClaimResult claimItem(@Argument String itemId, @Argument String userId) {
+        return sessionService.claimItem(itemId, userId);
+    }
+
+    @MutationMapping
+    public ClaimResult releaseItem(@Argument String itemId, @Argument String userId) {
+        return sessionService.releaseItem(itemId, userId);
+    }
 }
