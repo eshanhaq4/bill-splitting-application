@@ -1,7 +1,13 @@
+import { use } from 'react';
 import SummaryPage from '@/components/organisms/SummaryPage';
 
-export default function Summary() {
+interface SummaryPageProps {
+  params: Promise<{ id: string }>;
+}
+
+export default function Summary({ params }: SummaryPageProps) {
+  const resolvedParams = use(params);
   return (
-    <SummaryPage />
+    <SummaryPage sessionId={resolvedParams.id} />
   );
 }
