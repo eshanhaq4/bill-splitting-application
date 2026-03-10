@@ -8,6 +8,7 @@ import com.billsplit.backend.service.RedisQueueService;
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 
 
@@ -255,4 +256,20 @@ public class SessionService {
         }
     }
 
+    public MarkReadyResult markReady(String sessionId, String memberId) {
+        Member member = memberRepository.findById(UUID.fromString(memberId))
+                .orElseThrow(() -> new RuntimeException("MEMBER_NOT_FOUND"));
+
+        member.setReady(true);
+        memberRepository.save(member);
+
+        List<Member> members = memberRepository.findBySessionId(UUID.fromString(sessionId));
+        boolean allReady = members.stream().allMatch(Member::getReady);
+
+        if (allReady) {
+            sessionEventPublisher.publish(sessionId, "ALL_READY", Map.of());
+        }
+
+        return new MarkReadyResult(true, allReady);
+    }
 }

@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import ReceiptPage from '@/components/organisms/ReceiptPage';
 import client from '@/lib/graphql-request';
-import { GET_SESSION } from '@/lib/mutations';
+import { MARK_READY, GET_SESSION } from '@/lib/mutations';
 import { Item, Member } from '@/types/receipt';
 
 export default function ReceiptRoute() {
@@ -20,6 +20,7 @@ export default function ReceiptRoute() {
     const [totalTip, setTotalTip] = useState<number>(0);
     const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
     const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true);
+    const [isReady, setIsReady] = useState<boolean>(false);
 
     useEffect(() => {
         if (!sessionId) return;
@@ -89,6 +90,9 @@ export default function ReceiptRoute() {
                     setIsInitialLoading(false);
                     setItems(prev => [...prev, payload.item]);
                     break;
+                case 'ALL_READY':
+                    router.push(`/summary/${sessionId}`);
+                    break;
             }
         },
         () => {
@@ -98,6 +102,12 @@ export default function ReceiptRoute() {
             router.push(`/join/${encodeURIComponent(sessionId)}${nameQuery}`);
         },
     );
+
+    const handleReady = async () => {
+        if (!memberId || !sessionId) return;
+        setIsReady(true);
+        await client.request(MARK_READY, { sessionId, memberId });
+    };
 
     return (
         <ReceiptPage
@@ -109,6 +119,8 @@ export default function ReceiptRoute() {
             totalTip={totalTip}
             isItemsLoading={isInitialLoading}
             qrCodeUrl={qrCodeUrl}
+            isReady={isReady}
+            onReady={handleReady}
         />
     );
 }

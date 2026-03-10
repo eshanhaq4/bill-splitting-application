@@ -32,6 +32,9 @@ public class Member {
     @Column(name = "connected")
     private Boolean connected;
 
+    @Column(name = "ready", nullable = false)
+    private Boolean ready = false;
+
     @Enumerated(EnumType.STRING)
     @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.NAMED_ENUM)
     @Column(nullable = false, columnDefinition = "member_role")

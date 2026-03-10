@@ -87,3 +87,12 @@ export const RELEASE_ITEM = gql`
     }
   }
 `;
+
+export const MARK_READY = gql`
+  mutation MarkReady($sessionId: ID!, $memberId: ID!) {
+    markReady(sessionId: $sessionId, memberId: $memberId) {
+      success
+      allReady
+    }
+  }
+`;

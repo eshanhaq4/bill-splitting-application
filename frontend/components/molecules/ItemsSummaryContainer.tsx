@@ -7,6 +7,7 @@ interface ItemsSummaryContainerProps {
     onReadyClick?: () => void;
     readyLabel?: string;
     className?: string;
+    isReady?: boolean;
 }
 
 export default function ItemsSummaryContainer({
@@ -18,6 +19,7 @@ export default function ItemsSummaryContainer({
     onReadyClick,
     readyLabel = 'Ready',
     className = '',
+    isReady = false,
 }: ItemsSummaryContainerProps) {
     return (
         <div className={`w-full rounded-2xl bg-gradient-to-br from-emerald-700 to-emerald-800 p-4 text-white shadow-xl sm:p-6 ${className}`}>
@@ -55,9 +57,14 @@ export default function ItemsSummaryContainer({
                     <button
                         type="button"
                         onClick={onReadyClick}
-                        className="mt-4 w-full rounded-lg bg-white px-4 py-3 text-sm font-bold text-emerald-700 shadow-lg transition hover:bg-emerald-50 hover:scale-[1.02] active:scale-[0.98] sm:text-base"
+                        disabled={isReady}
+                        className={`mt-4 w-full rounded-lg px-4 py-3 text-sm font-bold shadow-lg transition sm:text-base ${
+                            isReady
+                                ? 'bg-emerald-300 text-emerald-800 cursor-not-allowed'
+                                : 'bg-white text-emerald-700 hover:bg-emerald-50 hover:scale-[1.02] active:scale-[0.98]'
+                        }`}
                     >
-                        {readyLabel}
+                        {isReady ? 'Waiting for others...' : readyLabel}
                     </button>
                 </div>
             </div>
