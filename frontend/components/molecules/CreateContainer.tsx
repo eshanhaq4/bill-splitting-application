@@ -28,14 +28,16 @@ export default function CreateContainer() {
         setLoading(true);
 
         try {
+            console.log('[Create] 🚀 Calling CREATE_SESSION mutation with:', { displayName: name.trim(), dietaryPreference });
             const data: any = await client.request(CREATE_SESSION, {
                 displayName: name.trim(),
                 dietaryPreference,
             });
             const { session, member, success, token } = data.createSession;
+            console.log('[Create] ✅ Session created:', { sessionId: session.id, memberId: member.id, token, success });
 
             if (!success) {
-                console.error('Failed to create session');
+                console.error('[Create] ❌ Failed to create session');
                 return;
             }
 
@@ -45,9 +47,13 @@ export default function CreateContainer() {
             localStorage.setItem(`displayName`, name.trim());
             localStorage.setItem('dietaryPreference', dietaryPreference);
 
-            // try/catch in case receipt upload mutation does not work yet
+            // Redirect immediately to receipt page
+            router.push(`/receipt/${session.id}?name=${encodeURIComponent(name.trim())}`);
+
+            // Upload receipt in background (don't wait)
             if (receiptFile) {
                 try {
+                    console.log('[Create] 📤 Uploading receipt file:', receiptFile.name);
                     const base64 = await toBase64(receiptFile);
                     const uploadData: any = await client.request(UPLOAD_RECEIPT, {
                         sessionId: session.id,
@@ -56,16 +62,17 @@ export default function CreateContainer() {
                     });
 
                     const { success, jobId, message: uploadMessage } = uploadData.uploadReceipt;
+                    console.log('[Create] 📥 Upload response:', { success, jobId, message: uploadMessage });
                     if (!success) {
-                        console.error('Upload failed:', uploadMessage);
+                        console.error('[Create] ❌ Upload failed:', uploadMessage);
+                    } else {
+                        console.log('[Create] ✅ Receipt uploaded successfully, jobId:', jobId);
                     }
                 } catch (uploadErr) {
                     // Mutation not live yet — log and continue to receipt page anyway
-                    console.warn('uploadReceipt not available yet:', uploadErr);
+                    console.error('[Create] ⚠️ uploadReceipt error:', uploadErr);
                 }
             }
-
-            router.push(`/receipt/${session.id}`);
         } catch (err) {
             console.error(err);
         } finally {

@@ -29,6 +29,8 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
     };
 
     const memberVisualsById = buildMemberVisualsById(sessionMembers);
+    const currentMember = sessionMembers.find(m => m.id === currentMemberId);
+    const currentMemberDisplayName = currentMember?.displayName ?? 'You';
 
     // Calculate user's claimed items summary based on RFC-7
     const summary = useMemo(() => {
@@ -46,6 +48,23 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
         const userTipShare = totalTip * proportion;
         // Calculate user's total
         const userTotal = userSubtotal + userTaxShare + userTipShare;
+        
+        if (process.env.NODE_ENV !== 'production') {
+            console.debug('[ReceiptPage] 💰 Summary recalculated:', {
+                currentMemberId,
+                claimedItemsCount,
+                userSubtotal,
+                totalSubtotal,
+                proportion,
+                userTaxShare,
+                userTipShare,
+                userTotal,
+                totalTax,
+                totalTip,
+                itemsCount: items.length,
+            });
+        }
+        
         return {
             claimedItemsCount,
             subtotal: userSubtotal,
@@ -81,6 +100,7 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
                     </div>
                     <div className="hidden min-h-0 flex-col lg:flex lg:basis-1/3 lg:pl-2">
                         <ItemsSummaryContainer
+                            displayName={currentMemberDisplayName}
                             claimedItemsCount={summary.claimedItemsCount}
                             subtotal={summary.subtotal}
                             tax={summary.tax}
@@ -95,6 +115,7 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
 
                 <div className="fixed inset-x-0 bottom-0 z-20 p-3 lg:hidden">
                     <ItemsSummaryContainer
+                        displayName={currentMemberDisplayName}
                         claimedItemsCount={summary.claimedItemsCount}
                         subtotal={summary.subtotal}
                         tax={summary.tax}

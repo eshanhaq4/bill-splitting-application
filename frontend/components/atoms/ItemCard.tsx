@@ -21,8 +21,9 @@ export default function ItemCard({ item, memberVisualsById, currentMemberId, ses
     const claimedByCurrentUser = item.claimedBy?.id === currentMemberId;
 
     const claimedMemberVisual = item.claimedBy ? memberVisualsById[item.claimedBy.id] : undefined;
-    const claimedByInitials = claimedMemberVisual?.initials ?? '';
-    const userColor = claimedMemberVisual?.colorClass ?? 'bg-emerald-500';
+    const fallbackInitials = item.claimedBy?.id ? item.claimedBy.id.slice(0, 2).toUpperCase() : '';
+    const claimedByInitials = claimedMemberVisual?.initials ?? fallbackInitials;
+    const userColor = claimedMemberVisual?.colorClass ?? 'bg-slate-500';
 
     const handleClick = async () => {
         // Only the current user can release their own claim., anyone can claim an unclaimed item.
