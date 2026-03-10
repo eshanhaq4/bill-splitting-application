@@ -14,7 +14,8 @@ import java.util.regex.Pattern;
 
 @Service
 public class OcrParserService {
-    private static final Pattern ITEM_PATTERN = Pattern.compile("^(.*?)\\s+(\\d+\\.\\d{2})$");
+    private static final Pattern ITEM_PATTERN = Pattern.compile("^(?:\\d+\\s*[xX]\\s*)?(.+?)\\s+\\$?(\\d+\\.\\d{2})$");
+    private static final List<String> SKIP_KEYWORDS = List.of("tax", "tip", "subtotal", "total", "thank", "date", "phone", "credit", "debit");
 
     public List<ParsedReceiptItem> extractItems(Path receiptImagePath) throws IOException, InterruptedException {
         return parseReceipt(receiptImagePath);
@@ -54,6 +55,7 @@ public class OcrParserService {
             if (matcher.matches()) {
                 String name = matcher.group(1).trim();
                 if (name.isEmpty()) continue;
+                if (SKIP_KEYWORDS.stream().anyMatch(k -> name.toLowerCase().contains(k))) continue;
 
                 BigDecimal price = new BigDecimal(matcher.group(2));
                 items.add(new ParsedReceiptItem(name, price));

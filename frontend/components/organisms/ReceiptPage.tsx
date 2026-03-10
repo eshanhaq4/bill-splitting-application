@@ -59,11 +59,8 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
         colorClass: memberVisualsById[member.id]?.colorClass ?? 'bg-emerald-500',
         isConnected: member.connected,
     }));
-<<<<<<< HEAD
    
     const qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=http://localhost:3000/join/session-123';
-=======
->>>>>>> 0d1d49ef3912021608688d1f248e9afb3f40722b
 
     return (
         <div className="flex h-screen w-full flex-col">
@@ -71,7 +68,7 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
             <main className="flex min-h-0 flex-1 overflow-hidden p-3 sm:p-4">
                 <div className="mx-auto flex h-full w-full max-w-7xl gap-4">
                     <div className="flex min-h-0 w-full flex-col lg:basis-2/3 lg:pr-2">
-                        {ocrLoading && items.length === 0 && (
+                        {isItemsLoading && (
                             <p className="text-sm text-slate-500 text-center mt-4">Parsing receipt...</p>
                         )}
                         <ReceiptContainer
@@ -79,22 +76,13 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
                             memberVisualsById={memberVisualsById}
                             currentMemberId={currentMemberId}
                             sessionId={sessionId}
-<<<<<<< HEAD
-=======
-                            isItemsLoading={isItemsLoading}
->>>>>>> 0d1d49ef3912021608688d1f248e9afb3f40722b
                         />
                     </div>
                     <div className="hidden min-h-0 flex-col lg:flex lg:basis-1/3 lg:pl-2">
                         <ItemsSummaryContainer
                             claimedItemsCount={summary.claimedItemsCount}
                             subtotal={summary.subtotal}
-<<<<<<< HEAD
                             tax={summary.taxShare}
-=======
-                            tax={summary.tax}
-                            tip={summary.tip}
->>>>>>> 0d1d49ef3912021608688d1f248e9afb3f40722b
                             total={summary.total}
                             onReadyClick={handleReady}
                             className="h-full"
@@ -106,12 +94,7 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
                     <ItemsSummaryContainer
                         claimedItemsCount={summary.claimedItemsCount}
                         subtotal={summary.subtotal}
-<<<<<<< HEAD
                         tax={summary.taxShare}
-=======
-                        tax={summary.tax}
-                        tip={summary.tip}
->>>>>>> 0d1d49ef3912021608688d1f248e9afb3f40722b
                         total={summary.total}
                         onReadyClick={handleReady}
                         className="h-full"
