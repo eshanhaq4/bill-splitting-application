@@ -26,17 +26,16 @@ export const CREATE_SESSION = gql`
 `;
 
 export const JOIN_SESSION = gql`
-  mutation JoinSession($sessionId: ID!, $displayName: String!, $dietaryPreference: String!) {
+  mutation JoinSession($sessionId: ID!, $displayName: String!, $dietaryPreference: String) {
     joinSession(sessionId: $sessionId, displayName: $displayName, dietaryPreference: $dietaryPreference) {
+      success
+      token
+      member {
+        id
+      }
       session {
         id
       }
-      member {
-        id
-        token
-      }
-      errorCode
-      message
     }
   }
 `;
