@@ -12,13 +12,34 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+
 @Service
 public class OcrParserService {
     private static final Pattern ITEM_PATTERN = Pattern.compile("^(?:\\d+\\s*[xX]\\s*)?(.+?)\\s+\\$?(\\d+\\.\\d{2})$");
-    private static final List<String> SKIP_KEYWORDS = List.of("tax", "tip", "subtotal", "total", "thank", "date", "phone", "credit", "debit");
+    private static final Pattern TAX_PATTERN = Pattern.compile("(?i).*tax\\s+\\$?(\\d+\\.\\d{2}).*");
+    private static final Pattern TIP_PATTERN = Pattern.compile("(?i).*(tip|gratuity)\\s+\\$?(\\d+\\.\\d{2}).*");
+    private static final List<String> SKIP_KEYWORDS = List.of("tax", "tip", "subtotal", "total", "thank", "date", "phone", "credit", "debit", "gratuity");
 
-    public List<ParsedReceiptItem> extractItems(Path receiptImagePath) throws IOException, InterruptedException {
-        return parseReceipt(receiptImagePath);
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ParsedReceiptResult {
+        private List<ParsedReceiptItem> items;
+        private BigDecimal tax;
+        private BigDecimal tip;
+    }
+    
+    public ParsedReceiptResult extractItems(Path receiptImagePath) throws IOException, InterruptedException {
+        String result = runTesseract(receiptImagePath);
+
+        List<ParsedReceiptItem> items = parseReceipt(result);
+        BigDecimal tax = extractTax(result);
+        BigDecimal tip = extractTip(result);
+
+        return new ParsedReceiptResult(items, tax, tip);
     }
 
     private String runTesseract(Path imagePath) throws IOException, InterruptedException {
@@ -41,10 +62,8 @@ public class OcrParserService {
         return output.toString();
     }
 
-    public List<ParsedReceiptItem> parseReceipt(Path receiptImagePath) throws IOException, InterruptedException {
+    private List<ParsedReceiptItem> parseReceipt(String ocrResult) {
         List<ParsedReceiptItem> items = new ArrayList<>();
-
-        String ocrResult = runTesseract(receiptImagePath);
         String[] lines = ocrResult.split("\\r?\\n");
 
         for (String line : lines) {
@@ -63,5 +82,34 @@ public class OcrParserService {
         }
 
         return items;
+    }
+    private BigDecimal extractTax(String ocrResult) {
+        String[] lines = ocrResult.split("\\r?\\n");
+
+        for (String line : lines) {
+            String trimmedLine = line.trim();
+            if (trimmedLine.isEmpty()) continue;
+
+            Matcher matcher = TAX_PATTERN.matcher(trimmedLine);
+            if (matcher.matches()) {
+                return new BigDecimal(matcher.group(1));
+            }
+        }
+        return null;
+    }
+
+    private BigDecimal extractTip(String ocrResult) {
+        String[] lines = ocrResult.split("\\r?\\n");
+
+        for (String line : lines) {
+            String trimmedLine = line.trim();
+            if (trimmedLine.isEmpty()) continue;
+
+            Matcher matcher = TIP_PATTERN.matcher(trimmedLine);
+            if (matcher.matches()) {
+                return new BigDecimal(matcher.group(2));
+            }
+        }
+        return null;
     }
 }
