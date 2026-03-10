@@ -28,6 +28,15 @@ public class BackendApplication {
 		System.setProperty("SUPABASE_BUCKET", dotenv.get("SUPABASE_BUCKET", "Receipts"));
 		System.setProperty("OCR_QUEUE_NAME", dotenv.get("OCR_QUEUE_NAME", "receipt_ocr_queue"));
 
+		System.setProperty("ACCESS_KEY", dotenv.get("ACCESS_KEY", ""));
+		System.setProperty("SECRET_KEY", dotenv.get("SECRET_KEY", ""));
+		System.setProperty("ENDPOINT", dotenv.get("ENDPOINT", ""));
+		System.setProperty("REGION", dotenv.get("REGION", "us-east-1"));
+		System.setProperty("BUCKET", dotenv.get("BUCKET", "Receipts"));
+
+		System.setProperty("REDIS_SSL", dotenv.get("REDIS_SSL", "false"));
+		System.setProperty("PORT", dotenv.get("PORT", "8081"));
+
 		SpringApplication.run(BackendApplication.class, args);
 	}
 }

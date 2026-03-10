@@ -42,6 +42,8 @@ public class OcrParserService {
         return new ParsedReceiptResult(items, tax, tip);
     }
 
+    private static boolean tesseractAvailable = true;
+
     private String runTesseract(Path imagePath) throws IOException, InterruptedException {
         ProcessBuilder pb = new ProcessBuilder("tesseract", imagePath.toString(), "stdout");
         Process process = pb.start();

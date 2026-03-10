@@ -90,15 +90,24 @@ public class OcrWorkerService {
 
             Files.deleteIfExists(receiptImage);
         } catch (Exception e) {
+            System.out.println("[OcrWorkerService] ERROR processing OCR job: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
     public void poll() {
+        System.out.println("[OcrWorkerService] Starting polling loop on queue: " + queueName);
         while (true) {
-            String jobJson = redisQueueService.dequeue(queueName, 5);
-            if (jobJson != null) {
-                processOcrJob(jobJson);
+            try {
+                String jobJson = redisQueueService.dequeue(queueName, 5);
+                if (jobJson != null) {
+                    System.out.println("[OcrWorkerService] Dequeued job: " + jobJson);
+                    processOcrJob(jobJson);
+                }
+            } catch (Exception e) {
+                System.out.println("[OcrWorkerService] FATAL poll error: " + e.getMessage());
+                e.printStackTrace();
+                try { Thread.sleep(2000); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); break; }
             }
         }
     }

@@ -17,10 +17,11 @@ export function useWebSocket(
     onEvent: (event: string, payload: any) => void,
     onConnectionLost?: () => void
 ) {
-    // Keep a stable ref to onEvent so the WebSocket subscription
-    // doesn't need to reconnect when the callback identity changes.
     const onEventRef = useRef(onEvent);
     onEventRef.current = onEvent;
+
+    const onConnectionLostRef = useRef(onConnectionLost);
+    onConnectionLostRef.current = onConnectionLost;
 
     useEffect(() => {
         if (!sessionId || !token) return;
@@ -31,11 +32,11 @@ export function useWebSocket(
             (event, payload) => {
                 onEventRef.current(event, payload);
             },
-            onConnectionLost,
+            () => onConnectionLostRef.current?.(),
         );
 
         return () => {
             disconnectWebSocket();
         };
-    }, [sessionId, token, onConnectionLost]);
+    }, [sessionId, token]);
 }
