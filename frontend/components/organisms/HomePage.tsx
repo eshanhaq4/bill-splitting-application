@@ -1,18 +1,10 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import HomeDescription from '@/components/atoms/HomeDescription';
 import AppHeader from '@/components/atoms/AppHeader';
 import CreateContainer from '@/components/molecules/CreateContainer';
 
 export default function HomePage() {
-  const router = useRouter();
-
-  const handleCreateSession = (payload: { name: string; receiptFile: File | null }) => {
-    const mockSessionId = 'session-' + Math.random().toString(36).substring(2, 11);
-    router.push(`/receipt/${mockSessionId}`);
-  };
-
   return (
     <div className="flex min-h-screen w-full flex-col">
       <AppHeader />
@@ -23,7 +15,7 @@ export default function HomePage() {
           </div>
 
           <div className="w-full lg:w-1/2">
-            <CreateContainer onCreateSession={handleCreateSession} />
+            <CreateContainer />
           </div>
         </div>
       </main>

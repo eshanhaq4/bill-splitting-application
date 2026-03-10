@@ -2,6 +2,7 @@ interface ItemsSummaryContainerProps {
     claimedItemsCount: number;
     subtotal: number;
     tax: number;
+    tip: number;
     total: number;
     onReadyClick?: () => void;
     readyLabel?: string;
@@ -12,6 +13,7 @@ export default function ItemsSummaryContainer({
     claimedItemsCount,
     subtotal,
     tax,
+    tip,
     total,
     onReadyClick,
     readyLabel = 'Ready',
@@ -37,6 +39,10 @@ export default function ItemsSummaryContainer({
                     <div className="flex items-center justify-between gap-3">
                         <span className="text-emerald-100">Tax</span>
                         <span className="font-semibold">${tax.toFixed(2)}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                        <span className="text-emerald-100">Tip</span>
+                        <span className="font-semibold">${tip.toFixed(2)}</span>
                     </div>
                 </div>
 
