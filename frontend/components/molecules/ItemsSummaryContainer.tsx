@@ -58,7 +58,10 @@ export default function ItemsSummaryContainer({
 
                     <button
                         type="button"
-                        onClick={onReadyClick}
+                        onClick={() => {
+                            console.log('button clicked');
+                            onReadyClick?.();
+                        }}
                         disabled={isReady}
                         className={`mt-4 w-full rounded-lg px-4 py-3 text-sm font-bold shadow-lg transition sm:text-base ${
                             isReady

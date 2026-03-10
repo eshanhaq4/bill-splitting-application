@@ -31,6 +31,7 @@ export default function ReceiptRoute() {
     const [totalTip, setTotalTip] = useState<number>(0);
     const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
     const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true);
+    const [isReady, setIsReady] = useState<boolean>(false);
     const hasSettledInitialDataRef = useRef(false);
     const scheduledReconcileTimeoutsRef = useRef<number[]>([]);
 
@@ -207,6 +208,10 @@ export default function ReceiptRoute() {
                         : { ...item, claimedBy: null, locked: false };
                 }));
                 break;
+            case 'ALL_READY':
+                console.log('[Receipt WebSocket] 🏁 ALL_READY - navigating to summary');
+                router.push(`/summary/${sessionId}`);
+                break;
             case 'USER_CONNECTED':
             case 'USER_DISCONNECTED':
             case 'USER_RECONNECTED':
@@ -250,7 +255,10 @@ export default function ReceiptRoute() {
     const handleReady = async () => {
         if (!memberId || !sessionId) return;
         setIsReady(true);
-        await client.request(MARK_READY, { sessionId, memberId });
+        const data: any = await client.request(MARK_READY, { sessionId, memberId });
+        if (data?.markReady?.allReady) {
+            router.push(`/summary/${sessionId}`);
+        }
     };
 
     return (
