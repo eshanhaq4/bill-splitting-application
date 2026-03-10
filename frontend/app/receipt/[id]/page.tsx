@@ -85,6 +85,10 @@ export default function ReceiptRoute() {
                             : { ...item, claimedBy: null, locked: false };
                     }));
                     break;
+                case 'OCR_ITEM_PARSED':
+                    setIsInitialLoading(false);
+                    setItems(prev => [...prev, payload.item]);
+                    break;
             }
         },
         () => {
