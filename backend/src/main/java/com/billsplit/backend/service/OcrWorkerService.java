@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.Map;
 
 @Service
 public class OcrWorkerService {
@@ -24,19 +25,22 @@ public class OcrWorkerService {
     private final ItemRepository itemRepository;
     private final SessionRepository sessionRepository;
     private final ObjectMapper objectMapper;
+    private final SessionEventPublisher sessionEventPublisher;
 
     @Value("${ocr.queue.name}")
     private String queueName;
 
     public OcrWorkerService(RedisQueueService redisQueueService, SupabaseStorageService supabaseStorageService,
-                            OcrParserService ocrParserService, ItemRepository itemRepository,
-                            SessionRepository sessionRepository, ObjectMapper objectMapper) {
+                        OcrParserService ocrParserService, ItemRepository itemRepository,
+                        SessionRepository sessionRepository, ObjectMapper objectMapper,
+                        SessionEventPublisher sessionEventPublisher) {
         this.redisQueueService = redisQueueService;
         this.supabaseStorageService = supabaseStorageService;
         this.ocrParserService = ocrParserService;
         this.itemRepository = itemRepository;
         this.sessionRepository = sessionRepository;
         this.objectMapper = objectMapper;
+        this.sessionEventPublisher = sessionEventPublisher;
     }
 
     public void processOcrJob(String jobJson) {
@@ -54,7 +58,18 @@ public class OcrWorkerService {
                     item.setName(parsedItem.getName());
                     item.setPrice(parsedItem.getPrice());
                     item.setSession(session);
-                    itemRepository.save(item);
+                    item.setCreatedAt(java.time.OffsetDateTime.now());
+                    Item savedItem = itemRepository.save(item);
+
+                    // Emit per-item event
+                    sessionEventPublisher.publish(job.getSessionId(), "OCR_ITEM_PARSED", Map.of(
+                        "item", Map.of(
+                            "id", savedItem.getId().toString(),
+                            "name", savedItem.getName(),
+                            "price", savedItem.getPrice(),
+                            "category", savedItem.getCategory() != null ? savedItem.getCategory() : ""
+                        )
+                    ));
                 }
             }
 

@@ -25,13 +25,15 @@ public class SessionController {
     }
 
     @MutationMapping
-    public CreateSessionResult createSession(@Argument String displayName) {
-        return sessionService.createSession(displayName);
+    public CreateSessionResult createSession(@Argument String displayName, @Argument String dietaryPreference) {
+        return sessionService.createSession(displayName, dietaryPreference);
     }
 
     @MutationMapping
-    public JoinSessionResult joinSession(@Argument String sessionId, @Argument String displayName) {
-        return sessionService.joinSession(sessionId, displayName);
+
+    public JoinSessionResult joinSession(@Argument String sessionId, @Argument String displayName,
+            @Argument String dietaryPreference) {
+        return sessionService.joinSession(sessionId, displayName, dietaryPreference);
     }
 
     @MutationMapping
@@ -42,5 +44,13 @@ public class SessionController {
     @MutationMapping
     public ClaimResult releaseItem(@Argument String itemId, @Argument String userId) {
         return sessionService.releaseItem(itemId, userId);
+    }
+
+    @MutationMapping
+    public ReceiptUploadResult uploadReceipt(
+            @Argument String sessionId,
+            @Argument String fileBase64,
+            @Argument String fileName) {
+        return sessionService.uploadReceipt(sessionId, fileBase64, fileName);
     }
 }

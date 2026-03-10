@@ -16,7 +16,7 @@ public class SupabaseStorageService {
     @Value("${supabase.url}")
     private String supabaseUrl;
 
-    @Value("${supabase.key}")
+    @Value("${supabase.service-key}")
     private String supabaseKey;
 
     @Value("${supabase.bucket}")
@@ -39,6 +39,25 @@ public class SupabaseStorageService {
             }
         } else {
             throw new IOException("Failed to download file from Supabase: " + connection.getResponseMessage());
+        }
+    }
+    public void uploadReceipt(String imagePath, byte[] imageBytes) throws IOException {
+        String uploadUrl = supabaseUrl + "/storage/v1/object/" + supabaseBucket + "/" + imagePath;
+        URL url = new URL(uploadUrl);
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Authorization", "Bearer " + supabaseKey);
+        connection.setRequestProperty("apikey", supabaseKey);
+        connection.setRequestProperty("Content-Type", "image/jpeg");
+        connection.setDoOutput(true);
+
+        try (var outputStream = connection.getOutputStream()) {
+            outputStream.write(imageBytes);
+        }
+
+        int responseCode = connection.getResponseCode();
+        if (responseCode != 200 && responseCode != 201) {
+            throw new IOException("Supabase upload failed: " + connection.getResponseMessage());
         }
     }
 }

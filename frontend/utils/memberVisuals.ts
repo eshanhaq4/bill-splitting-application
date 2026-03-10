@@ -11,6 +11,14 @@ const MEMBER_COLOR_CLASSES = [
     'bg-teal-500',
 ];
 
+/**
+ * Extracts 2-character base initials from a display name.
+ * 
+ * For multi-word names: Takes first letter of first two words (e.g., "John Doe" → "JD").
+ * For single-word names: Takes first two letters (e.g., "Alice" → "AL").
+ * Removes special characters and converts to uppercase.
+ * Returns "??" if name is empty or invalid.
+ */
 function getBaseInitials(displayName: string): string {
     const parts = displayName
         .trim()
@@ -34,6 +42,17 @@ function getBaseInitials(displayName: string): string {
     return `${first}${second}`.toUpperCase();
 }
 
+/**
+ * Generates unique 2-character initials for a member, avoiding collisions.
+ * 
+ * Strategy:
+ * 1. Try base initials from getBaseInitials()
+ * 2. If taken, try pairing first initial with other characters from the flattened name
+ * 3. If all exhausted, try numeric suffixes (first letter + 0-9)
+ * 4. As last resort, returns base initials even if duplicate
+ * 
+ * Updates the usedInitials Set to track uniqueness across all members.
+ */
 function makeUniqueInitials(displayName: string, usedInitials: Set<string>): string {
     const base = getBaseInitials(displayName);
     if (!usedInitials.has(base)) {
@@ -62,6 +81,15 @@ function makeUniqueInitials(displayName: string, usedInitials: Set<string>): str
     return base;
 }
 
+/**
+ * Assigns a consistent color class to a member using pseudo-random selection.
+ * 
+ * Uses a simple hash function on the member's ID and displayName to generate
+ * a deterministic index into MEMBER_COLOR_CLASSES. Same member always gets
+ * the same color, but different members get distributed across the palette.
+ * 
+ * Hash algorithm: multiply-and-add with 31 as prime multiplier, modulo palette size.
+ */
 function getColorForMember(member: Member): string {
     const key = `${member.id}:${member.displayName}`;
     let hash = 0;
@@ -72,6 +100,16 @@ function getColorForMember(member: Member): string {
     return MEMBER_COLOR_CLASSES[hash % MEMBER_COLOR_CLASSES.length];
 }
 
+/**
+ * Builds a complete mapping of member IDs to their visual representations.
+ * 
+ * For each member in the input array:
+ * - Generates unique initials (collision-safe across all members)
+ * - Assigns a consistent pseudo-random color
+ * - Returns a Record mapping member.id to {initials, colorClass}
+ * 
+ * Used by ReceiptPage to derive avatar display data from backend Member objects.
+ */
 export function buildMemberVisualsById(members: Member[]): Record<string, MemberVisual> {
     const visualsById: Record<string, MemberVisual> = {};
     const usedInitials = new Set<string>();

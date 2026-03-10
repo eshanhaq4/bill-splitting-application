@@ -10,6 +10,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+
 import java.math.BigDecimal;
 import java.util.Optional;
 import java.util.UUID;
@@ -141,5 +146,136 @@ public class ItemClaimServiceTests {
         assertFalse(result.isSuccess());
         assertEquals("UNAUTHORIZED", result.getErrorCode());
         verify(sessionEventPublisher, never()).publish(any(), eq("ITEM_RELEASED"), any());
+    }
+
+    @Test
+    void claimItem_concurrent_exactlyOneWinsAndOneGetsAlreadyClaimed() throws InterruptedException {
+        UUID user1Id = UUID.randomUUID();
+        UUID user2Id = UUID.randomUUID();
+
+        Member member1 = new Member();
+        member1.setId(user1Id);
+        member1.setDisplayName("Chris");
+        member1.setSession(session);
+
+        Member member2 = new Member();
+        member2.setId(user2Id);
+        member2.setDisplayName("Alex");
+        member2.setSession(session);
+
+        // Both threads find the item and their member
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(memberRepository.findById(user1Id)).thenReturn(Optional.of(member1));
+        when(memberRepository.findById(user2Id)).thenReturn(Optional.of(member2));
+
+        AtomicInteger callCount = new AtomicInteger(0);
+        when(itemRepository.claimIfAvailable(eq(itemId), any()))
+                .thenAnswer(inv -> callCount.incrementAndGet() == 1 ? 1 : 0);
+
+        CountDownLatch startGun = new CountDownLatch(1);
+        CountDownLatch bothDone = new CountDownLatch(2);
+
+        AtomicReference<ClaimResult> result1 = new AtomicReference<>();
+        AtomicReference<ClaimResult> result2 = new AtomicReference<>();
+
+        Thread t1 = new Thread(() -> {
+            try {
+                startGun.await(); // wait for the gun
+                result1.set(sessionService.claimItem(itemId.toString(), user1Id.toString()));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } finally {
+                bothDone.countDown();
+            }
+        });
+
+        Thread t2 = new Thread(() -> {
+            try {
+                startGun.await();
+                result2.set(sessionService.claimItem(itemId.toString(), user2Id.toString()));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } finally {
+                bothDone.countDown();
+            }
+        });
+
+        t1.start();
+        t2.start();
+        startGun.countDown();
+        bothDone.await(5, TimeUnit.SECONDS);
+
+        ClaimResult r1 = result1.get();
+        ClaimResult r2 = result2.get();
+
+        boolean oneWon = (r1.isSuccess() && !r2.isSuccess()) || (!r1.isSuccess() && r2.isSuccess());
+        assertTrue(oneWon, "Exactly one thread should win the claim");
+
+        ClaimResult loser = r1.isSuccess() ? r2 : r1;
+        assertEquals("ITEM_ALREADY_CLAIMED", loser.getErrorCode());
+        assertNotNull(loser.getMessage());
+        assertFalse(loser.getMessage().isBlank());
+    }
+
+    @Test
+    void claimItem_concurrent_loserNeverSeesNullItem() throws InterruptedException {
+        UUID user1Id = UUID.randomUUID();
+        UUID user2Id = UUID.randomUUID();
+
+        Member member1 = new Member();
+        member1.setId(user1Id);
+        member1.setDisplayName("Chris");
+        member1.setSession(session);
+
+        Member member2 = new Member();
+        member2.setId(user2Id);
+        member2.setDisplayName("Alex");
+        member2.setSession(session);
+
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(memberRepository.findById(user1Id)).thenReturn(Optional.of(member1));
+        when(memberRepository.findById(user2Id)).thenReturn(Optional.of(member2));
+
+        AtomicInteger callCount = new AtomicInteger(0);
+        when(itemRepository.claimIfAvailable(eq(itemId), any()))
+                .thenAnswer(inv -> callCount.incrementAndGet() == 1 ? 1 : 0);
+
+        CountDownLatch startGun = new CountDownLatch(1);
+        CountDownLatch bothDone = new CountDownLatch(2);
+
+        AtomicReference<ClaimResult> result1 = new AtomicReference<>();
+        AtomicReference<ClaimResult> result2 = new AtomicReference<>();
+
+        Thread t1 = new Thread(() -> {
+            try {
+                startGun.await();
+                result1.set(sessionService.claimItem(itemId.toString(), user1Id.toString()));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } finally {
+                bothDone.countDown();
+            }
+        });
+
+        Thread t2 = new Thread(() -> {
+            try {
+                startGun.await();
+                result2.set(sessionService.claimItem(itemId.toString(), user2Id.toString()));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            } finally {
+                bothDone.countDown();
+            }
+        });
+
+        t1.start();
+        t2.start();
+        startGun.countDown();
+        bothDone.await(5, TimeUnit.SECONDS);
+
+        assertNotNull(result1.get());
+        assertNotNull(result2.get());
+        assertNotNull(result1.get().getItem(), "Winner item must not be null");
+        assertNotNull(result2.get().getItem(), "Loser item must not be null — clean error response required");
     }
 }

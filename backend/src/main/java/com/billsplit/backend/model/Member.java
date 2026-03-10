@@ -23,6 +23,9 @@ public class Member {
     @Column(name = "display_name", length = 100)
     private String displayName;
 
+    @Column(name = "dietary_preference")
+    private String dietaryPreference;
+
     @Column(name = "token")
     private UUID token;
 

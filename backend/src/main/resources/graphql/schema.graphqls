@@ -3,13 +3,12 @@ type Query {
 }
 
 type Mutation {
-    createSession(displayName: String!): CreateSessionResult!
-    joinSession(sessionId: ID!, displayName: String!): JoinSessionResult!
+    createSession(displayName: String!, dietaryPreference: String): CreateSessionResult!
+    joinSession(sessionId: ID!, displayName: String!, dietaryPreference: String): JoinSessionResult!
     claimItem(itemId: ID!, userId: ID!): ClaimResult!
     releaseItem(itemId: ID!, userId: ID!): ClaimResult!
 
-    # Temporarily remove this from the schema for now
-    # uploadReceipt(sessionId: ID!, filePath: String!): ReceiptUploadResult!
+    uploadReceipt(sessionId: ID!, fileBase64: String!, fileName: String!): ReceiptUploadResult!
 }
 
 type Session {
@@ -41,6 +40,7 @@ type Member {
     connected: Boolean!
     token: String
     role: String!
+    dietaryPreference: String
 }
 
 type Item {
@@ -61,7 +61,7 @@ type ClaimResult {
 
 type ReceiptUploadResult {
     success: Boolean!
-    jobId: ID!
+    jobId: ID
     message: String!
 }
 
