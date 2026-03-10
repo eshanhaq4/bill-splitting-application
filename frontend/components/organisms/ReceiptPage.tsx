@@ -59,7 +59,7 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
         colorClass: memberVisualsById[member.id]?.colorClass ?? 'bg-emerald-500',
         isConnected: member.connected,
     }));
-
+   
     return (
         <div className="flex h-screen w-full flex-col">
             <ReceiptHeader members={members} qrCodeUrl={qrCodeUrl} />

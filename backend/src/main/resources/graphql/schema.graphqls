@@ -3,7 +3,7 @@ type Query {
 }
 
 type Mutation {
-    createSession(displayName: String!): CreateSessionResult!
+    createSession(displayName: String!, dietaryPreference: String): CreateSessionResult!
     joinSession(sessionId: ID!, displayName: String!, dietaryPreference: String): JoinSessionResult!
     claimItem(itemId: ID!, userId: ID!): ClaimResult!
     releaseItem(itemId: ID!, userId: ID!): ClaimResult!
