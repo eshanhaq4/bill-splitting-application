@@ -41,8 +41,8 @@ export default function CreateContainer() {
                 return;
             }
 
-            localStorage.setItem(`token_${session.id}`, data.createSession.token);
-            localStorage.setItem(`memberId_${session.id}`, member.id);
+            localStorage.setItem('token', data.createSession.token);
+            localStorage.setItem('memberId', member.id);
             localStorage.setItem(`sessionId`, session.id);
             localStorage.setItem(`displayName`, name.trim());
             localStorage.setItem('dietaryPreference', dietaryPreference);
