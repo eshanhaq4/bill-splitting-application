@@ -60,8 +60,6 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
         isConnected: member.connected,
     }));
    
-    const qrCodeUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=http://localhost:3000/join/session-123';
-
     return (
         <div className="flex h-screen w-full flex-col">
             <ReceiptHeader members={members} qrCodeUrl={qrCodeUrl} />
@@ -76,13 +74,15 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
                             memberVisualsById={memberVisualsById}
                             currentMemberId={currentMemberId}
                             sessionId={sessionId}
+                            isItemsLoading={isItemsLoading}
                         />
                     </div>
                     <div className="hidden min-h-0 flex-col lg:flex lg:basis-1/3 lg:pl-2">
                         <ItemsSummaryContainer
                             claimedItemsCount={summary.claimedItemsCount}
                             subtotal={summary.subtotal}
-                            tax={summary.taxShare}
+                            tax={summary.tax}
+                            tip={summary.tip}
                             total={summary.total}
                             onReadyClick={handleReady}
                             className="h-full"
@@ -94,7 +94,8 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
                     <ItemsSummaryContainer
                         claimedItemsCount={summary.claimedItemsCount}
                         subtotal={summary.subtotal}
-                        tax={summary.taxShare}
+                        tax={summary.tax}
+                        tip={summary.tip}
                         total={summary.total}
                         onReadyClick={handleReady}
                         className="h-full"
