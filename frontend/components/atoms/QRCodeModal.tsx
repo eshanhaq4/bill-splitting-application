@@ -1,5 +1,7 @@
 'use client';
 
+import { useState } from 'react';
+
 interface QRCodeModalProps {
     qrCodeUrl: string;
     isOpen: boolean;
@@ -7,7 +9,32 @@ interface QRCodeModalProps {
 }
 
 export default function QRCodeModal({ qrCodeUrl, isOpen, onClose }: QRCodeModalProps) {
+    const [copied, setCopied] = useState(false);
+
     if (!isOpen) return null;
+
+    // Extract the actual join URL from the QR code URL
+    // qrCodeUrl format: https://api.qrserver.com/v1/create-qr-code/?data=http://localhost:3000/join/SESSION_ID
+    const getJoinUrl = () => {
+        try {
+            const url = new URL(qrCodeUrl);
+            return url.searchParams.get('data') || '';
+        } catch {
+            return '';
+        }
+    };
+
+    const joinUrl = getJoinUrl();
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(joinUrl);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy:', err);
+        }
+    };
 
     return (
         <div
@@ -52,6 +79,25 @@ export default function QRCodeModal({ qrCodeUrl, isOpen, onClose }: QRCodeModalP
                     <p className="text-center text-sm text-slate-600 sm:text-base">
                         Scan this QR code to join the session
                     </p>
+
+                    {/* Link with copy button */}
+                    <div className="w-full mt-2">
+                        <p className="text-xs text-slate-500 mb-2 text-center font-semibold">Or share this link:</p>
+                        <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3">
+                            <input
+                                type="text"
+                                value={joinUrl}
+                                readOnly
+                                className="flex-1 bg-transparent text-xs text-slate-700 outline-none sm:text-sm"
+                            />
+                            <button
+                                onClick={handleCopy}
+                                className="rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-700 active:scale-95 sm:text-sm"
+                            >
+                                {copied ? '✓ Copied!' : 'Copy'}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

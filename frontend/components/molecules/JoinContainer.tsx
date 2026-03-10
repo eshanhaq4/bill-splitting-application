@@ -30,26 +30,29 @@ export default function JoinContainer() {
         setLoading(true);
 
         try {
+            console.log('[Join] 🚀 Calling JOIN_SESSION mutation with:', { sessionId, displayName: name.trim(), dietaryPreference });
             const data: any = await client.request(JOIN_SESSION, {
                 sessionId,
                 displayName: name.trim(),
                 dietaryPreference,
             });
 
-            const { session, member, success } = data.joinSession;
+            const { session, member, token, errorCode, message } = data.joinSession;
+            console.log('[Join] 📥 Response:', { sessionId: session.id, memberId: member.id, token, errorCode, message });
 
-            if (!success) {
-                console.error('Join failed');
+            if (errorCode) {
+                console.error('[Join] ❌ Join failed:', message);
                 return;
             }
+            console.log('[Join] ✅ Successfully joined session');
 
-            localStorage.setItem('token', data.joinSession.token);
+            localStorage.setItem('token', token);
             localStorage.setItem('memberId', member.id);
             localStorage.setItem('sessionId', session.id);
             localStorage.setItem('displayName', name.trim());
             localStorage.setItem('dietaryPreference', dietaryPreference);
 
-            router.push(`/receipt/${session.id}`);
+            router.push(`/receipt/${session.id}?name=${encodeURIComponent(name.trim())}`);
         } catch (err) {
             console.error('Join error:', err);
         } finally {

@@ -1,4 +1,5 @@
 interface ItemsSummaryContainerProps {
+    displayName: string;
     claimedItemsCount: number;
     subtotal: number;
     tax: number;
@@ -10,6 +11,7 @@ interface ItemsSummaryContainerProps {
 }
 
 export default function ItemsSummaryContainer({
+    displayName,
     claimedItemsCount,
     subtotal,
     tax,
@@ -23,7 +25,7 @@ export default function ItemsSummaryContainer({
         <div className={`w-full rounded-2xl bg-gradient-to-br from-emerald-700 to-emerald-800 p-4 text-white shadow-xl sm:p-6 ${className}`}>
             <div className="flex h-full min-h-0 flex-col">
                 <div>
-                    <h2 className="text-lg font-bold sm:text-xl">Items Summary</h2>
+                    <h2 className="text-lg font-bold sm:text-xl">{displayName}'s Items Summary</h2>
                     <div className="mt-3 h-px w-full bg-emerald-400/50" />
                 </div>
 

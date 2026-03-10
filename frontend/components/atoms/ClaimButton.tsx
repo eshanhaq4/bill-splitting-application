@@ -24,7 +24,7 @@ export default function ClaimButton({
                 font-bold text-[clamp(0.75rem,2.5vw,1rem)] transition-all duration-200
                 border-2 ${claimed ? "border-emerald-600" : "border-emerald-300 hover:border-emerald-500"}
                 ${isLoading ? "opacity-60 cursor-wait" : "cursor-pointer hover:scale-110"}
-                ${claimed ? `bg-emerald-500 text-white shadow-lg` : "bg-white text-emerald-600"}
+                ${claimed ? `${userColor} text-white shadow-lg` : "bg-white text-emerald-600"}
                 ${className}
             `}
         >

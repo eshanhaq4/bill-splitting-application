@@ -15,13 +15,17 @@ export function useWebSocket(
     sessionId: string | null,
     token: string | null,
     onEvent: (event: string, payload: any) => void,
-    onConnectionLost?: () => void
+    onConnectionLost?: () => void,
+    onConnected?: () => void
 ) {
     const onEventRef = useRef(onEvent);
     onEventRef.current = onEvent;
 
     const onConnectionLostRef = useRef(onConnectionLost);
     onConnectionLostRef.current = onConnectionLost;
+
+    const onConnectedRef = useRef(onConnected);
+    onConnectedRef.current = onConnected;
 
     useEffect(() => {
         if (!sessionId || !token) return;
@@ -32,7 +36,8 @@ export function useWebSocket(
             (event, payload) => {
                 onEventRef.current(event, payload);
             },
-            () => onConnectionLostRef.current?.(),
+            onConnectionLostRef.current,
+            onConnectedRef.current,
         );
 
         return () => {
