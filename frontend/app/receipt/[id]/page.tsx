@@ -7,6 +7,7 @@ import ReceiptPage from '@/components/organisms/ReceiptPage';
 import client from '@/lib/graphql-request';
 import { GET_SESSION } from '@/lib/mutations';
 import { Item, Member } from '@/types/receipt';
+import { calculateUserSummary } from '@/utils/taxTip';
 
 export default function ReceiptRoute() {
     const router = useRouter();
@@ -91,6 +92,8 @@ export default function ReceiptRoute() {
             router.push(`/join/${encodeURIComponent(sessionId)}${nameQuery}`);
         },
     );
+
+    const summary = calculateUserSummary(items, memberId ?? '', tax, tip);
 
     return (
         <ReceiptPage

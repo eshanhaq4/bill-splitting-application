@@ -66,6 +66,9 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
             <main className="flex min-h-0 flex-1 overflow-hidden p-3 sm:p-4">
                 <div className="mx-auto flex h-full w-full max-w-7xl gap-4">
                     <div className="flex min-h-0 w-full flex-col lg:basis-2/3 lg:pr-2">
+                        {isItemsLoading && (
+                            <p className="text-sm text-slate-500 text-center mt-4">Parsing receipt...</p>
+                        )}
                         <ReceiptContainer
                             items={items}
                             memberVisualsById={memberVisualsById}
@@ -74,7 +77,6 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
                             isItemsLoading={isItemsLoading}
                         />
                     </div>
-
                     <div className="hidden min-h-0 flex-col lg:flex lg:basis-1/3 lg:pl-2">
                         <ItemsSummaryContainer
                             claimedItemsCount={summary.claimedItemsCount}
@@ -96,6 +98,7 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
                         tip={summary.tip}
                         total={summary.total}
                         onReadyClick={handleReady}
+                        className="h-full"
                     />
                 </div>
             </main>

@@ -25,7 +25,7 @@ public class BackendApplication {
 
 		System.setProperty("SUPABASE_URL", dotenv.get("SUPABASE_URL", ""));
 		System.setProperty("SUPABASE_KEY", dotenv.get("SUPABASE_KEY", ""));
-		System.setProperty("SUPABASE_BUCKET", dotenv.get("SUPABASE_BUCKET", "receipts"));
+		System.setProperty("SUPABASE_BUCKET", dotenv.get("SUPABASE_BUCKET", "Receipts"));
 		System.setProperty("OCR_QUEUE_NAME", dotenv.get("OCR_QUEUE_NAME", "receipt_ocr_queue"));
 
 		SpringApplication.run(BackendApplication.class, args);
