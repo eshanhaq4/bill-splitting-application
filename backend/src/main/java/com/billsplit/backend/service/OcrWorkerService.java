@@ -17,6 +17,8 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.Map;
 
+import java.math.BigDecimal;
+
 @Service
 public class OcrWorkerService {
     private final RedisQueueService redisQueueService;
@@ -47,12 +49,25 @@ public class OcrWorkerService {
         try {
             OcrJob job = objectMapper.readValue(jobJson, OcrJob.class);
             Path receiptImage = supabaseStorageService.downloadReceipt(job.getImagePath());
-            List<ParsedReceiptItem> parsedItems = ocrParserService.extractItems(receiptImage);
+            
+            OcrParserService.ParsedReceiptResult parsedResult = ocrParserService.extractItems(receiptImage);
+            List<ParsedReceiptItem> parsedItems = parsedResult.getItems();
+            BigDecimal tax = parsedResult.getTax();
+            BigDecimal tip = parsedResult.getTip();
 
             Optional<Session> sessionOpt = sessionRepository.findById(UUID.fromString(job.getSessionId()));
             
             if (sessionOpt.isPresent()) {
                 Session session = sessionOpt.get();
+                
+                if (tax != null) {
+                    session.setTax(tax);
+                }
+                if (tip != null) {
+                    session.setTip(tip);
+                }
+                sessionRepository.save(session);
+
                 for (ParsedReceiptItem parsedItem : parsedItems) {
                     Item item = new Item();
                     item.setName(parsedItem.getName());
