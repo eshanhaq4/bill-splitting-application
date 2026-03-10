@@ -14,7 +14,8 @@ import { connectWebSocket, disconnectWebSocket } from '@/lib/websocket-client';
 export function useWebSocket(
     sessionId: string | null,
     token: string | null,
-    onEvent: (event: string, payload: any) => void
+    onEvent: (event: string, payload: any) => void,
+    onConnectionLost?: () => void
 ) {
     // Keep a stable ref to onEvent so the WebSocket subscription
     // doesn't need to reconnect when the callback identity changes.
@@ -24,12 +25,17 @@ export function useWebSocket(
     useEffect(() => {
         if (!sessionId || !token) return;
 
-        connectWebSocket(sessionId, token, (event, payload) => {
-            onEventRef.current(event, payload);
-        });
+        connectWebSocket(
+            sessionId,
+            token,
+            (event, payload) => {
+                onEventRef.current(event, payload);
+            },
+            onConnectionLost,
+        );
 
         return () => {
             disconnectWebSocket();
         };
-    }, [sessionId, token]);
+    }, [sessionId, token, onConnectionLost]);
 }
