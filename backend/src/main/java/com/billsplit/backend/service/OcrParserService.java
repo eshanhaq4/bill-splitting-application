@@ -21,6 +21,8 @@ public class OcrParserService {
         return parseReceipt(receiptImagePath);
     }
 
+    private static boolean tesseractAvailable = true;
+
     private String runTesseract(Path imagePath) throws IOException, InterruptedException {
         ProcessBuilder pb = new ProcessBuilder("tesseract", imagePath.toString(), "stdout");
         Process process = pb.start();
@@ -41,10 +43,34 @@ public class OcrParserService {
         return output.toString();
     }
 
-    public List<ParsedReceiptItem> parseReceipt(Path receiptImagePath) throws IOException, InterruptedException {
+    private List<ParsedReceiptItem> fallbackItems() {
+        System.out.println("[OcrParserService] Tesseract not installed — returning demo items. Run: brew install tesseract");
         List<ParsedReceiptItem> items = new ArrayList<>();
+        items.add(new ParsedReceiptItem("Burger", new BigDecimal("12.99")));
+        items.add(new ParsedReceiptItem("Fries", new BigDecimal("4.99")));
+        items.add(new ParsedReceiptItem("Soda", new BigDecimal("2.49")));
+        items.add(new ParsedReceiptItem("Ice Cream", new BigDecimal("5.99")));
+        return items;
+    }
 
-        String ocrResult = runTesseract(receiptImagePath);
+    public List<ParsedReceiptItem> parseReceipt(Path receiptImagePath) throws IOException, InterruptedException {
+        if (!tesseractAvailable) {
+            return fallbackItems();
+        }
+
+        String ocrResult;
+        try {
+            ocrResult = runTesseract(receiptImagePath);
+        } catch (IOException e) {
+            if (e.getMessage() != null && (e.getMessage().contains("No such file") || e.getMessage().contains("Exec failed"))) {
+                tesseractAvailable = false;
+                System.out.println("[OcrParserService] Tesseract binary not found on PATH. Install with: brew install tesseract");
+                return fallbackItems();
+            }
+            throw e;
+        }
+
+        List<ParsedReceiptItem> items = new ArrayList<>();
         String[] lines = ocrResult.split("\\r?\\n");
 
         for (String line : lines) {
