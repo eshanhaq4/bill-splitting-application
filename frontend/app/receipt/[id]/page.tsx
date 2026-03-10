@@ -169,26 +169,29 @@ export default function ReceiptRoute() {
                     console.log('[Receipt WebSocket] 👤 Claimed by unknown member, reconciling session members');
                     void reconcileSessionData('claim-missing-member');
                 }
-                setItems(prev => {
-                    const updated = prev.map(item =>
-                        item.id === payload.item_id
-                            ? { ...item, claimedBy: { id: payload.claimed_by }, locked: false }
-                            : item
-                    );
-                    console.log('[Receipt] ⚡ Items state updated after ITEM_CLAIMED:', updated);
-                    return updated;
+                setItems(prev => prev.map(item =>
+                    item.id === payload.item_id
+                        ? { ...item, claimedBy: { id: payload.claimed_by }, locked: false }
+                        : item
+                ));
+                // Remove agent claimed status when a real user claims it
+                setAgentClaimedItems(prev => {
+                    const next = new Set(prev);
+                    next.delete(payload.item_id);
+                    return next;
                 });
                 break;
             case 'ITEM_RELEASED':
-                console.log('[Receipt WebSocket] 🔓 ITEM_RELEASED - itemId:', payload.item_id);
-                setItems(prev => {
-                    const updated = prev.map(item =>
-                        item.id === payload.item_id
-                            ? { ...item, claimedBy: null, locked: false }
-                            : item
-                    );
-                    console.log('[Receipt] ⚡ Items state updated after ITEM_RELEASED:', updated);
-                    return updated;
+                setItems(prev => prev.map(item =>
+                    item.id === payload.item_id
+                        ? { ...item, claimedBy: null, locked: false }
+                        : item
+                ));
+                // Remove agent claimed status when item is released
+                setAgentClaimedItems(prev => {
+                    const next = new Set(prev);
+                    next.delete(payload.item_id);
+                    return next;
                 });
                 break;
             case 'ITEM_LOCKED':

@@ -57,6 +57,7 @@ public class ItemClaimService {
             }
 
             item.setClaimedBy(member);
+            item.setAgentClaimed(false); 
             itemRepository.save(item);
 
             // Broadcast ITEM_CLAIMED
@@ -115,6 +116,7 @@ public class ItemClaimService {
         }
 
         item.setClaimedBy(null);
+        item.setAgentClaimed(false); 
         itemRepository.save(item);
 
         eventPublisher.publish(sessionId, "ITEM_RELEASED", java.util.Map.of("itemId", itemId));
