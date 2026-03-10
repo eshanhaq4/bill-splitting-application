@@ -24,31 +24,20 @@ interface ReceiptPageProps {
 export default function ReceiptPage({ sessionId, items, currentMemberId, sessionMembers, totalTax, totalTip, isItemsLoading, qrCodeUrl, isReady, onReady }: ReceiptPageProps) {
     const router = useRouter();
 
-    const handleReady = () => {
-        router.push(`/summary/${sessionId}`);
-    };
-
     const memberVisualsById = buildMemberVisualsById(sessionMembers);
     const currentMember = sessionMembers.find(m => m.id === currentMemberId);
     const currentMemberDisplayName = currentMember?.displayName ?? 'You';
 
-    // Calculate user's claimed items summary based on RFC-7
     const summary = useMemo(() => {
-        // Get all items claimed by current user
         const userItems = items.filter(item => item.claimedBy?.id === currentMemberId);
         const claimedItemsCount = userItems.length;
-        // Calculate user's subtotal
         const userSubtotal = userItems.reduce((sum, item) => sum + item.price, 0);
-        // Calculate total subtotal
         const totalSubtotal = items.reduce((sum, item) => sum + item.price, 0);
-        // Calculate user's proportional share of tax and tip
-        // If no items exist or user has no items, their share is 0
         const proportion = totalSubtotal > 0 ? userSubtotal / totalSubtotal : 0;
         const userTaxShare = totalTax * proportion;
         const userTipShare = totalTip * proportion;
-        // Calculate user's total
         const userTotal = userSubtotal + userTaxShare + userTipShare;
-        
+
         if (process.env.NODE_ENV !== 'production') {
             console.debug('[ReceiptPage] 💰 Summary recalculated:', {
                 currentMemberId,
@@ -64,7 +53,7 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
                 itemsCount: items.length,
             });
         }
-        
+
         return {
             claimedItemsCount,
             subtotal: userSubtotal,
@@ -80,7 +69,7 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
         colorClass: memberVisualsById[member.id]?.colorClass ?? 'bg-emerald-500',
         isConnected: member.connected,
     }));
-   
+
     return (
         <div className="flex h-screen w-full flex-col">
             <ReceiptHeader members={members} qrCodeUrl={qrCodeUrl} />
@@ -123,6 +112,7 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
                         total={summary.total}
                         onReadyClick={onReady}
                         isReady={isReady}
+                        compact
                         className="h-full"
                     />
                 </div>

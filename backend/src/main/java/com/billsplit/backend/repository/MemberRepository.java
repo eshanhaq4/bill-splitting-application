@@ -14,4 +14,7 @@ public interface MemberRepository extends JpaRepository<Member, UUID> {
     Optional<Member> findBySessionIdAndDisplayName(UUID sessionId, String displayName);
 
     List<Member> findBySessionId(UUID sessionId);
+
+    List<Member> findByConnectedFalse();
 }
+

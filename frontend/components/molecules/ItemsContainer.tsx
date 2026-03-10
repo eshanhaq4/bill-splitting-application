@@ -41,8 +41,9 @@ export default function ItemsContainer({ items, memberVisualsById, currentMember
                         key={`${item.id}-${index}`}
                         item={item}
                         memberVisualsById={memberVisualsById}
-                        currentMemberId={currentMemberId} 
-                        sessionId={sessionId} 
+                        currentMemberId={currentMemberId}
+                        sessionId={sessionId}
+                        isAgentClaimed={Boolean(item.agentClaimed)}
                     />
                 ))}
             </div>

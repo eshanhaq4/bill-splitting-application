@@ -58,10 +58,11 @@ export const GET_SESSION = gql`
         price
         category
         locked
+        agentClaimed
         claimedBy {
-          id
-          displayName
-          connected
+            id
+            displayName
+            connected
         }
       }
     }

@@ -32,6 +32,7 @@ export default function ReceiptRoute() {
     const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
     const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true);
     const [isReady, setIsReady] = useState<boolean>(false);
+    const [agentClaimedItems, setAgentClaimedItems] = useState<Set<string>>(new Set());
     const hasSettledInitialDataRef = useRef(false);
     const scheduledReconcileTimeoutsRef = useRef<number[]>([]);
 
@@ -81,8 +82,7 @@ export default function ReceiptRoute() {
     useEffect(() => {
         setToken(localStorage.getItem('token'));
         setMemberId(localStorage.getItem('memberId'));
-        
-        // If display name is in URL, update localStorage so it persists on reload
+
         if (displayNameFromUrl) {
             localStorage.setItem('displayName', displayNameFromUrl);
         }
@@ -153,26 +153,29 @@ export default function ReceiptRoute() {
                     console.log('[Receipt WebSocket] 👤 Claimed by unknown member, reconciling session members');
                     void reconcileSessionData('claim-missing-member');
                 }
-                setItems(prev => {
-                    const updated = prev.map(item =>
-                        item.id === payload.item_id
-                            ? { ...item, claimedBy: { id: payload.claimed_by }, locked: false }
-                            : item
-                    );
-                    console.log('[Receipt] ⚡ Items state updated after ITEM_CLAIMED:', updated);
-                    return updated;
+                setItems(prev => prev.map(item =>
+                    item.id === payload.item_id
+                        ? { ...item, claimedBy: { id: payload.claimed_by }, locked: false, agentClaimed: false }
+                        : item
+                ));
+                // Remove agent claimed status when a real user claims it
+                setAgentClaimedItems(prev => {
+                    const next = new Set(prev);
+                    next.delete(payload.item_id);
+                    return next;
                 });
                 break;
             case 'ITEM_RELEASED':
-                console.log('[Receipt WebSocket] 🔓 ITEM_RELEASED - itemId:', payload.item_id);
-                setItems(prev => {
-                    const updated = prev.map(item =>
-                        item.id === payload.item_id
-                            ? { ...item, claimedBy: null, locked: false }
-                            : item
-                    );
-                    console.log('[Receipt] ⚡ Items state updated after ITEM_RELEASED:', updated);
-                    return updated;
+                setItems(prev => prev.map(item =>
+                    item.id === payload.item_id
+                        ? { ...item, claimedBy: null, locked: false, agentClaimed: false }
+                        : item
+                ));
+                // Remove agent claimed status when item is released
+                setAgentClaimedItems(prev => {
+                    const next = new Set(prev);
+                    next.delete(payload.item_id);
+                    return next;
                 });
                 break;
             case 'ITEM_LOCKED':
@@ -240,7 +243,6 @@ export default function ReceiptRoute() {
                 ? { ...member, connected: true }
                 : member
         ));
-
         reconcileSessionData('websocket-connected');
     }, [memberId, reconcileSessionData]);
 

@@ -8,6 +8,7 @@ interface ReceiptContainerProps {
     sessionId: string;
     isItemsLoading: boolean;
 }
+
 export default function ReceiptContainer({ items, memberVisualsById, currentMemberId, sessionId, isItemsLoading }: ReceiptContainerProps) {
     return (
         <div className="h-full min-h-0 w-full p-2 sm:p-3">

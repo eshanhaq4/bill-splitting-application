@@ -30,6 +30,9 @@ public class Item {
     @Column(nullable = false)
     private Boolean locked = false;
 
+    @Column(name = "agent_claimed", nullable = false)
+    private Boolean agentClaimed = false;
+
     @ManyToOne
     @JoinColumn(name = "claimed_by")
     private Member claimedBy;
