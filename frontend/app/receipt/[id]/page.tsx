@@ -32,6 +32,7 @@ export default function ReceiptRoute() {
     const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
     const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true);
     const [isReady, setIsReady] = useState<boolean>(false);
+    const [agentClaimedItems, setAgentClaimedItems] = useState<Set<string>>(new Set());
     const hasSettledInitialDataRef = useRef(false);
     const scheduledReconcileTimeoutsRef = useRef<number[]>([]);
 
@@ -59,6 +60,14 @@ export default function ReceiptRoute() {
             setTotalTip(tip ?? 0);
             setQrCodeUrl(url ?? '');
 
+            // Sync agent claimed items from DB
+            const agentClaimed = new Set(
+                items
+                    .filter((i: any) => i.agentClaimed)
+                    .map((i: any) => i.id as string)
+            );
+            setAgentClaimedItems(agentClaimed);
+
             console.log('[Receipt] ✅ Reconcile complete:', {
                 itemCount: items.length,
                 memberCount: members.length,
@@ -81,8 +90,7 @@ export default function ReceiptRoute() {
     useEffect(() => {
         setToken(localStorage.getItem('token'));
         setMemberId(localStorage.getItem('memberId'));
-        
-        // If display name is in URL, update localStorage so it persists on reload
+
         if (displayNameFromUrl) {
             localStorage.setItem('displayName', displayNameFromUrl);
         }
@@ -114,6 +122,14 @@ export default function ReceiptRoute() {
                 setTotalTax(tax ?? 0);
                 setTotalTip(tip ?? 0);
                 setQrCodeUrl(url ?? '');
+
+                // Initialize agent claimed items from DB on load
+                const agentClaimed = new Set(
+                    items
+                        .filter((i: any) => i.agentClaimed)
+                        .map((i: any) => i.id as string)
+                );
+                setAgentClaimedItems(agentClaimed);
             })
             .catch((error) => {
                 console.error('[Receipt] ❌ Failed to load session data:', error);
@@ -207,6 +223,15 @@ export default function ReceiptRoute() {
                         ? { ...item, claimedBy: { id: payload.member_id }, locked: false }
                         : { ...item, claimedBy: null, locked: false };
                 }));
+                if (payload.action === 'CLAIMED') {
+                    setAgentClaimedItems(prev => new Set(prev).add(payload.item_id));
+                } else {
+                    setAgentClaimedItems(prev => {
+                        const next = new Set(prev);
+                        next.delete(payload.item_id);
+                        return next;
+                    });
+                }
                 break;
             case 'ALL_READY':
                 console.log('[Receipt WebSocket] 🏁 ALL_READY - navigating to summary');
@@ -240,7 +265,6 @@ export default function ReceiptRoute() {
                 ? { ...member, connected: true }
                 : member
         ));
-
         reconcileSessionData('websocket-connected');
     }, [memberId, reconcileSessionData]);
 
@@ -273,6 +297,7 @@ export default function ReceiptRoute() {
             qrCodeUrl={qrCodeUrl}
             isReady={isReady}
             onReady={handleReady}
+            agentClaimedItems={agentClaimedItems}
         />
     );
 }

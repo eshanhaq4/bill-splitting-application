@@ -7,9 +7,10 @@ interface ItemsContainerProps {
     currentMemberId: string;
     sessionId: string;
     isLoading: boolean;
+    agentClaimedItems: Set<string>;
 }
 
-export default function ItemsContainer({ items, memberVisualsById, currentMemberId, sessionId, isLoading }: ItemsContainerProps) {
+export default function ItemsContainer({ items, memberVisualsById, currentMemberId, sessionId, isLoading, agentClaimedItems }: ItemsContainerProps) {
     if (isLoading) {
         return (
             <div className="h-full min-h-0 w-full overflow-y-auto">
@@ -41,8 +42,9 @@ export default function ItemsContainer({ items, memberVisualsById, currentMember
                         key={`${item.id}-${index}`}
                         item={item}
                         memberVisualsById={memberVisualsById}
-                        currentMemberId={currentMemberId} 
-                        sessionId={sessionId} 
+                        currentMemberId={currentMemberId}
+                        sessionId={sessionId}
+                        isAgentClaimed={agentClaimedItems.has(item.id)}
                     />
                 ))}
             </div>

@@ -52,6 +52,7 @@ type Item {
     category: String
     claimedBy: Member
     locked: Boolean!
+    agentClaimed: Boolean!
 }
 
 type ClaimResult {

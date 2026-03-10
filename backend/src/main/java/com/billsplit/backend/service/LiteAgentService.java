@@ -69,6 +69,10 @@ public class LiteAgentService {
                 System.out.println("[LiteAgentService] Claim result for " + item.getName() + ": success=" + result.isSuccess() + " error=" + result.getErrorCode());
                 if (result.isSuccess()) {
                     System.out.println("[LiteAgentService] Agent claimed item: " + item.getName() + " for member: " + member.getDisplayName());
+                    itemRepository.findById(item.getId()).ifPresent(i -> {
+                        i.setAgentClaimed(true);
+                        itemRepository.save(i);
+                    });
                     sessionEventPublisher.publish(member.getSession().getId().toString(), "AGENT_ACTION", Map.of(
                         "action", "CLAIMED",
                         "itemId", item.getId().toString(),
