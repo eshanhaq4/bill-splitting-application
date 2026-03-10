@@ -43,10 +43,10 @@ export default function JoinContainer() {
                 return;
             }
 
-            localStorage.setItem('token', data.joinSession.token);
-            localStorage.setItem('memberId', member.id);
-            localStorage.setItem('sessionId', session.id);
-            localStorage.setItem('displayName', name.trim());
+            localStorage.setItem(`token_${session.id}`, data.joinSession.token);
+            localStorage.setItem(`memberId_${session.id}`, member.id);
+            localStorage.setItem(`sessionId`, session.id);
+            localStorage.setItem(`displayName`, name.trim());
             localStorage.setItem('dietaryPreference', dietaryPreference);
 
             router.push(`/receipt/${session.id}`);

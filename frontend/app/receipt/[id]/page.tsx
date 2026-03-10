@@ -22,9 +22,10 @@ export default function ReceiptRoute() {
     const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        setToken(localStorage.getItem('token'));
-        setMemberId(localStorage.getItem('memberId'));
-    }, []);
+        if (!sessionId) return;
+        setToken(localStorage.getItem(`token_${sessionId}`));
+        setMemberId(localStorage.getItem(`memberId_${sessionId}`));
+    }, [sessionId]);
 
     useEffect(() => {
         if (!sessionId) return;
@@ -55,7 +56,7 @@ export default function ReceiptRoute() {
                 case 'ITEM_CLAIMED':
                     setItems(prev => prev.map(item =>
                         item.id === payload.itemId
-                            ? { ...item, claimedBy: { id: payload.memberId }, locked: false }
+                            ? { ...item, claimedBy: { id: payload.claimedBy }, locked: false }
                             : item
                     ));
                     break;
@@ -71,14 +72,16 @@ export default function ReceiptRoute() {
                         item.id === payload.itemId ? { ...item, locked: true } : item
                     ));
                     break;
-                case 'OCR_ITEM_PARSED':
-                    setItems(prev => [...prev, payload.item]);
+                case 'ITEM_UNLOCKED':
+                    setItems(prev => prev.map(item =>
+                        item.id === payload.itemId ? { ...item, locked: false } : item
+                    ));
                     break;
                 case 'AGENT_ACTION':
                     setItems(prev => prev.map(item => {
                         if (item.id !== payload.itemId) return item;
                         return payload.action === 'CLAIMED'
-                            ? { ...item, claimedBy: { id: payload.memberId }, locked: false }
+                            ? { ...item, claimedBy: { id: payload.claimedBy }, locked: false }
                             : { ...item, claimedBy: null, locked: false };
                     }));
                     break;
