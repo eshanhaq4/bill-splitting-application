@@ -41,7 +41,8 @@ public class SessionService {
     }
 
 
-    public CreateSessionResult createSession(String displayName) {
+
+    public CreateSessionResult createSession(String displayName, String dietaryPreference) {
         try {
             // Create the session
             Session session = new Session();
@@ -56,6 +57,9 @@ public class SessionService {
             member.setConnected(true);
             member.setSession(session);
             member.setRole(MemberRole.LEADER);
+            if (dietaryPreference != null) {
+                member.setDietaryPreference(dietaryPreference);
+            }
             member = memberRepository.save(member);
             System.out.println("Member created: " + member.getId());
 

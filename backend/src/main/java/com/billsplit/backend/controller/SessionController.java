@@ -25,8 +25,8 @@ public class SessionController {
     }
 
     @MutationMapping
-    public CreateSessionResult createSession(@Argument String displayName) {
-        return sessionService.createSession(displayName);
+    public CreateSessionResult createSession(@Argument String displayName, @Argument String dietaryPreference) {
+        return sessionService.createSession(displayName, dietaryPreference);
     }
 
     @MutationMapping
