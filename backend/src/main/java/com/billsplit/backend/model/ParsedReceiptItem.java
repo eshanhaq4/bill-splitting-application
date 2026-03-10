@@ -12,4 +12,11 @@ import lombok.AllArgsConstructor;
 public class ParsedReceiptItem {
     private String name;
     private BigDecimal price;
+    private String category = "NONE";
+
+    public ParsedReceiptItem(String name, BigDecimal price) {
+        this.name = name;
+        this.price = price;
+        this.category = "NONE";
+    }
 }

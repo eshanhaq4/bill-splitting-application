@@ -72,6 +72,7 @@ public class OcrWorkerService {
                     Item item = new Item();
                     item.setName(parsedItem.getName());
                     item.setPrice(parsedItem.getPrice());
+                    item.setCategory(parsedItem.getCategory());
                     item.setSession(session);
                     item.setCreatedAt(java.time.OffsetDateTime.now());
                     Item savedItem = itemRepository.save(item);
