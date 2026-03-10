@@ -60,14 +60,6 @@ export default function ReceiptRoute() {
             setTotalTip(tip ?? 0);
             setQrCodeUrl(url ?? '');
 
-            // Sync agent claimed items from DB
-            const agentClaimed = new Set(
-                items
-                    .filter((i: any) => i.agentClaimed)
-                    .map((i: any) => i.id as string)
-            );
-            setAgentClaimedItems(agentClaimed);
-
             console.log('[Receipt] ✅ Reconcile complete:', {
                 itemCount: items.length,
                 memberCount: members.length,
@@ -122,14 +114,6 @@ export default function ReceiptRoute() {
                 setTotalTax(tax ?? 0);
                 setTotalTip(tip ?? 0);
                 setQrCodeUrl(url ?? '');
-
-                // Initialize agent claimed items from DB on load
-                const agentClaimed = new Set(
-                    items
-                        .filter((i: any) => i.agentClaimed)
-                        .map((i: any) => i.id as string)
-                );
-                setAgentClaimedItems(agentClaimed);
             })
             .catch((error) => {
                 console.error('[Receipt] ❌ Failed to load session data:', error);
@@ -171,7 +155,7 @@ export default function ReceiptRoute() {
                 }
                 setItems(prev => prev.map(item =>
                     item.id === payload.item_id
-                        ? { ...item, claimedBy: { id: payload.claimed_by }, locked: false }
+                        ? { ...item, claimedBy: { id: payload.claimed_by }, locked: false, agentClaimed: false }
                         : item
                 ));
                 // Remove agent claimed status when a real user claims it
@@ -184,7 +168,7 @@ export default function ReceiptRoute() {
             case 'ITEM_RELEASED':
                 setItems(prev => prev.map(item =>
                     item.id === payload.item_id
-                        ? { ...item, claimedBy: null, locked: false }
+                        ? { ...item, claimedBy: null, locked: false, agentClaimed: false }
                         : item
                 ));
                 // Remove agent claimed status when item is released
@@ -226,15 +210,6 @@ export default function ReceiptRoute() {
                         ? { ...item, claimedBy: { id: payload.member_id }, locked: false }
                         : { ...item, claimedBy: null, locked: false };
                 }));
-                if (payload.action === 'CLAIMED') {
-                    setAgentClaimedItems(prev => new Set(prev).add(payload.item_id));
-                } else {
-                    setAgentClaimedItems(prev => {
-                        const next = new Set(prev);
-                        next.delete(payload.item_id);
-                        return next;
-                    });
-                }
                 break;
             case 'ALL_READY':
                 console.log('[Receipt WebSocket] 🏁 ALL_READY - navigating to summary');
@@ -300,7 +275,6 @@ export default function ReceiptRoute() {
             qrCodeUrl={qrCodeUrl}
             isReady={isReady}
             onReady={handleReady}
-            agentClaimedItems={agentClaimedItems}
         />
     );
 }

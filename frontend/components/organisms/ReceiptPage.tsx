@@ -19,10 +19,9 @@ interface ReceiptPageProps {
     qrCodeUrl: string;
     isReady: boolean;
     onReady: () => void;
-    agentClaimedItems: Set<string>;
 }
 
-export default function ReceiptPage({ sessionId, items, currentMemberId, sessionMembers, totalTax, totalTip, isItemsLoading, qrCodeUrl, isReady, onReady, agentClaimedItems }: ReceiptPageProps) {
+export default function ReceiptPage({ sessionId, items, currentMemberId, sessionMembers, totalTax, totalTip, isItemsLoading, qrCodeUrl, isReady, onReady }: ReceiptPageProps) {
     const router = useRouter();
 
     const memberVisualsById = buildMemberVisualsById(sessionMembers);
@@ -86,7 +85,6 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
                             currentMemberId={currentMemberId}
                             sessionId={sessionId}
                             isItemsLoading={isItemsLoading}
-                            agentClaimedItems={agentClaimedItems}
                         />
                     </div>
                     <div className="hidden min-h-0 flex-col lg:flex lg:basis-1/3 lg:pl-2">
@@ -114,6 +112,7 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
                         total={summary.total}
                         onReadyClick={onReady}
                         isReady={isReady}
+                        compact
                         className="h-full"
                     />
                 </div>

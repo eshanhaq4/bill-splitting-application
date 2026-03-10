@@ -7,10 +7,9 @@ interface ReceiptContainerProps {
     currentMemberId: string;
     sessionId: string;
     isItemsLoading: boolean;
-    agentClaimedItems: Set<string>;
 }
 
-export default function ReceiptContainer({ items, memberVisualsById, currentMemberId, sessionId, isItemsLoading, agentClaimedItems }: ReceiptContainerProps) {
+export default function ReceiptContainer({ items, memberVisualsById, currentMemberId, sessionId, isItemsLoading }: ReceiptContainerProps) {
     return (
         <div className="h-full min-h-0 w-full p-2 sm:p-3">
             <div className="flex h-full min-h-0 flex-col">
@@ -26,7 +25,6 @@ export default function ReceiptContainer({ items, memberVisualsById, currentMemb
                         currentMemberId={currentMemberId}
                         sessionId={sessionId}
                         isLoading={isItemsLoading}
-                        agentClaimedItems={agentClaimedItems}
                     />
                 </div>
             </div>

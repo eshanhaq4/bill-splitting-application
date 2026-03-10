@@ -16,6 +16,6 @@ export interface Item {
     price: number;
     category?: string;
     locked: boolean;
-    agentClaimed: boolean;
+    agentClaimed?: boolean;
     claimedBy: Pick<Member, 'id'> | null;
 }

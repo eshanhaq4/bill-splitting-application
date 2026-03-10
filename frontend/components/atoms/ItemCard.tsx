@@ -58,12 +58,23 @@ export default function ItemCard({ item, memberVisualsById, currentMemberId, ses
     };
 
     return (
-        <div className="w-full rounded-xl border-2 border-emerald-200 bg-white px-4 py-3 shadow-sm transition hover:border-emerald-400 hover:shadow-md">
+        <div className={`w-full rounded-xl border-2 bg-white px-4 py-3 shadow-sm transition hover:shadow-md ${
+            isAgentClaimed
+                ? 'border-blue-300 bg-blue-50 hover:border-blue-400'
+                : 'border-emerald-200 hover:border-emerald-400'
+        }`}>
             <div className="flex items-center justify-between gap-4">
                 <div className="min-w-0 flex-1">
-                    <h3 className="truncate text-base font-semibold text-slate-900 sm:text-lg">
-                        {item.name}
-                    </h3>
+                    <div className="flex items-center gap-2">
+                        <h3 className="truncate text-base font-semibold text-slate-900 sm:text-lg">
+                            {item.name}
+                        </h3>
+                        {isAgentClaimed && (
+                            <span className="shrink-0 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
+                                Auto-Claimed
+                            </span>
+                        )}
+                    </div>
                     <p className="mt-1 text-sm font-medium text-emerald-600 sm:text-base">
                         ${item.price.toFixed(2)}
                     </p>
@@ -73,7 +84,7 @@ export default function ItemCard({ item, memberVisualsById, currentMemberId, ses
                     <ClaimButton
                         claimed={claimed}
                         claimedBy={claimedByInitials}
-                        userColor={userColor}
+                        userColor={isAgentClaimed ? 'bg-blue-500' : userColor}
                         isLoading={isLoading || item.locked}
                         onClick={handleClick}
                     />
