@@ -39,10 +39,10 @@ export default function CreateContainer() {
                 return;
             }
 
-            localStorage.setItem('token', token); 
-            localStorage.setItem('memberId', member.id);
-            localStorage.setItem('sessionId', session.id);
-            localStorage.setItem('displayName', name.trim());
+            localStorage.setItem(`token_${session.id}`, data.createSession.token);
+            localStorage.setItem(`memberId_${session.id}`, member.id);
+            localStorage.setItem(`sessionId`, session.id);
+            localStorage.setItem(`displayName`, name.trim());
             localStorage.setItem('dietaryPreference', dietaryPreference);
 
             // try/catch in case receipt upload mutation does not work yet

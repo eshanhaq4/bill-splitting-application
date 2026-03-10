@@ -36,17 +36,17 @@ export default function JoinContainer() {
                 dietaryPreference,
             });
 
-            const { session, member, errorCode, message } = data.joinSession;
+            const { session, member, success } = data.joinSession;
 
-            if (errorCode) {
-                console.error('Join failed:', message);
+            if (!success) {
+                console.error('Join failed');
                 return;
             }
 
-            localStorage.setItem('token', member.token);
-            localStorage.setItem('memberId', member.id);
-            localStorage.setItem('sessionId', session.id);
-            localStorage.setItem('displayName', name.trim());
+            localStorage.setItem(`token_${session.id}`, data.joinSession.token);
+            localStorage.setItem(`memberId_${session.id}`, member.id);
+            localStorage.setItem(`sessionId`, session.id);
+            localStorage.setItem(`displayName`, name.trim());
             localStorage.setItem('dietaryPreference', dietaryPreference);
 
             router.push(`/receipt/${session.id}`);
