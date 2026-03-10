@@ -33,9 +33,8 @@ public class AgentTriggerService {
             // Key still exists = still within 2 minute window, don't run agent yet
             // Key expired/gone = 2 minutes passed, run agent
             if (sessionId == null && member.getSession() != null 
-                    && member.getDietaryPreference() != null 
-                    && !member.getDietaryPreference().isBlank()
-                    && !member.getDietaryPreference().equalsIgnoreCase("NONE")) {
+                && member.getDietaryPreference() != null 
+                && !member.getDietaryPreference().isBlank()) {
                 System.out.println("[AgentTriggerService] Running agent for member: " + member.getId());
                 liteAgentService.runAgent(member.getId().toString());
             }

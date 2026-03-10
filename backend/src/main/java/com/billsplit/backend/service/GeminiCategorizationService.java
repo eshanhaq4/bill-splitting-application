@@ -34,8 +34,6 @@ public class GeminiCategorizationService {
             Rules:
             - VEGAN: no animal products at all
             - VEGETARIAN: no meat/seafood but may have dairy/eggs
-            - MEAT: contains beef, pork, chicken, lamb, etc.
-            - SEAFOOD: contains fish, shrimp, crab, etc.
             - NONE: non-food items, drinks, or unclear
             
             Respond with ONLY a JSON array of strings in the same order as the input.

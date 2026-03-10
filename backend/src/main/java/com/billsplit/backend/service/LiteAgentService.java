@@ -47,7 +47,7 @@ public class LiteAgentService {
         if (member.getConnected() != null && member.getConnected()) return;
 
         String preference = member.getDietaryPreference();
-        if (preference == null || preference.isBlank() || preference.equalsIgnoreCase("NONE")) return;
+        if (preference == null || preference.isBlank()) return;
 
         preference = preference.trim().toUpperCase();
         List<Item> items = itemRepository.findBySessionId(member.getSession().getId());
@@ -60,11 +60,13 @@ public class LiteAgentService {
             boolean shouldClaim = switch (preference) {
                 case "VEGAN" -> category.equals("VEGAN");
                 case "VEGETARIAN" -> category.equals("VEGAN") || category.equals("VEGETARIAN");
+                case "NONE" -> category.equals("NONE");
                 default -> false;
             };
 
             if (shouldClaim) {
                 ClaimResult result = itemClaimService.claimItem(item.getId().toString(), memberId);
+                System.out.println("[LiteAgentService] Claim result for " + item.getName() + ": success=" + result.isSuccess() + " error=" + result.getErrorCode());
                 if (result.isSuccess()) {
                     System.out.println("[LiteAgentService] Agent claimed item: " + item.getName() + " for member: " + member.getDisplayName());
                     sessionEventPublisher.publish(member.getSession().getId().toString(), "AGENT_ACTION", Map.of(
