@@ -41,10 +41,10 @@ export default function CreateContainer() {
                 return;
             }
 
-            localStorage.setItem('token', token); 
-            localStorage.setItem('memberId', member.id);
-            localStorage.setItem('sessionId', session.id);
-            localStorage.setItem('displayName', name.trim());
+            localStorage.setItem(`token_${session.id}`, data.createSession.token);
+            localStorage.setItem(`memberId_${session.id}`, member.id);
+            localStorage.setItem(`sessionId`, session.id);
+            localStorage.setItem(`displayName`, name.trim());
             localStorage.setItem('dietaryPreference', dietaryPreference);
 
             // Redirect immediately to receipt page

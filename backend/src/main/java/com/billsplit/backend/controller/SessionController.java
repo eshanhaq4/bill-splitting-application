@@ -53,4 +53,9 @@ public class SessionController {
             @Argument String fileName) {
         return sessionService.uploadReceipt(sessionId, fileBase64, fileName);
     }
+
+    @MutationMapping
+    public MarkReadyResult markReady(@Argument String sessionId, @Argument String memberId) {
+        return sessionService.markReady(sessionId, memberId);
+    }
 }

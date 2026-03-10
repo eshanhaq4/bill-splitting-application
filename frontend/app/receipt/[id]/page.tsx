@@ -5,7 +5,7 @@ import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import ReceiptPage from '@/components/organisms/ReceiptPage';
 import client from '@/lib/graphql-request';
-import { GET_SESSION } from '@/lib/mutations';
+import { MARK_READY, GET_SESSION } from '@/lib/mutations';
 import { Item, Member } from '@/types/receipt';
 
 function mergeItems(existing: Item[], incoming: Item[]): Item[] {
@@ -247,6 +247,12 @@ export default function ReceiptRoute() {
         handleWebSocketConnected
     );
 
+    const handleReady = async () => {
+        if (!memberId || !sessionId) return;
+        setIsReady(true);
+        await client.request(MARK_READY, { sessionId, memberId });
+    };
+
     return (
         <ReceiptPage
             sessionId={sessionId}
@@ -257,6 +263,8 @@ export default function ReceiptRoute() {
             totalTip={totalTip}
             isItemsLoading={isInitialLoading}
             qrCodeUrl={qrCodeUrl}
+            isReady={isReady}
+            onReady={handleReady}
         />
     );
 }

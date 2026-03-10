@@ -17,9 +17,11 @@ interface ReceiptPageProps {
     totalTip: number;
     isItemsLoading: boolean;
     qrCodeUrl: string;
+    isReady: boolean;
+    onReady: () => void;
 }
 
-export default function ReceiptPage({ sessionId, items, currentMemberId, sessionMembers, totalTax, totalTip, isItemsLoading, qrCodeUrl }: ReceiptPageProps) {
+export default function ReceiptPage({ sessionId, items, currentMemberId, sessionMembers, totalTax, totalTip, isItemsLoading, qrCodeUrl, isReady, onReady }: ReceiptPageProps) {
     const router = useRouter();
 
     const handleReady = () => {
@@ -104,7 +106,8 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
                             tax={summary.tax}
                             tip={summary.tip}
                             total={summary.total}
-                            onReadyClick={handleReady}
+                            onReadyClick={onReady}
+                            isReady={isReady}
                             className="h-full"
                         />
                     </div>
@@ -118,7 +121,8 @@ export default function ReceiptPage({ sessionId, items, currentMemberId, session
                         tax={summary.tax}
                         tip={summary.tip}
                         total={summary.total}
-                        onReadyClick={handleReady}
+                        onReadyClick={onReady}
+                        isReady={isReady}
                         className="h-full"
                     />
                 </div>
