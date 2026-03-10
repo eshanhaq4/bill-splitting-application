@@ -18,7 +18,7 @@ export function connectWebSocket(
             console.log('WebSocket connected');
             stompClient?.subscribe(`/topic/session/${sessionId}`, (message) => {
                 const body = JSON.parse(message.body);
-                onMessage(body.event, body.payload);
+                onMessage(body.type, body.payload);
             });
         },
         onDisconnect: () => {
