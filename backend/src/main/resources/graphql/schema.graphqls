@@ -9,6 +9,7 @@ type Mutation {
     releaseItem(itemId: ID!, userId: ID!): ClaimResult!
 
     uploadReceipt(sessionId: ID!, fileBase64: String!, fileName: String!): ReceiptUploadResult!
+    markReady(sessionId: ID!, memberId: ID!): MarkReadyResult!
 }
 
 type Session {
@@ -41,6 +42,7 @@ type Member {
     token: String
     role: String!
     dietaryPreference: String
+    ready: Boolean!
 }
 
 type Item {
@@ -77,4 +79,9 @@ type CreateSessionResult {
     token: String!
     member: Member!
     session: Session!
+}
+
+type MarkReadyResult {
+    success: Boolean!
+    allReady: Boolean!
 }
