@@ -41,13 +41,11 @@ public class ItemClaimService {
 
         String sessionId = item.getSession().getId().toString();
 
-        // Broadcast ITEM_LOCKED immediately
-        eventPublisher.publish(sessionId, "ITEM_LOCKED", java.util.Map.of("itemId", itemId));
+        eventPublisher.publish(sessionId, "ITEM_LOCKED", java.util.Map.of("item_id", itemId));
 
         try {
-            // Atomic conditional update
             if (item.getClaimedBy() != null) {
-                eventPublisher.publish(sessionId, "ITEM_UNLOCKED", java.util.Map.of("itemId", itemId));
+                eventPublisher.publish(sessionId, "ITEM_UNLOCKED", java.util.Map.of("item_id", itemId));
                 ClaimResult result = new ClaimResult();
                 result.setSuccess(false);
                 result.setErrorCode("ITEM_ALREADY_CLAIMED");
@@ -57,14 +55,13 @@ public class ItemClaimService {
             }
 
             item.setClaimedBy(member);
-            item.setAgentClaimed(false); 
+            item.setAgentClaimed(false);
             itemRepository.save(item);
 
-            // Broadcast ITEM_CLAIMED
             eventPublisher.publish(sessionId, "ITEM_CLAIMED", java.util.Map.of(
-                "itemId", itemId,
-                "claimedBy", userId,
-                "displayName", member.getDisplayName()
+                "item_id", itemId,
+                "claimed_by", userId,
+                "display_name", member.getDisplayName()
             ));
 
             ClaimResult result = new ClaimResult();
@@ -73,7 +70,7 @@ public class ItemClaimService {
             return result;
 
         } catch (Exception e) {
-            eventPublisher.publish(sessionId, "ITEM_UNLOCKED", java.util.Map.of("itemId", itemId));
+            eventPublisher.publish(sessionId, "ITEM_UNLOCKED", java.util.Map.of("item_id", itemId));
             ClaimResult result = new ClaimResult();
             result.setSuccess(false);
             result.setErrorCode("SERVER_ERROR");
@@ -103,7 +100,6 @@ public class ItemClaimService {
             return result;
         }
 
-
         String sessionId = item.getSession().getId().toString();
 
         if (item.getClaimedBy() == null || !item.getClaimedBy().getId().equals(member.getId())) {
@@ -116,10 +112,10 @@ public class ItemClaimService {
         }
 
         item.setClaimedBy(null);
-        item.setAgentClaimed(false); 
+        item.setAgentClaimed(false);
         itemRepository.save(item);
 
-        eventPublisher.publish(sessionId, "ITEM_RELEASED", java.util.Map.of("itemId", itemId));
+        eventPublisher.publish(sessionId, "ITEM_RELEASED", java.util.Map.of("item_id", itemId));
 
         ClaimResult result = new ClaimResult();
         result.setSuccess(true);
