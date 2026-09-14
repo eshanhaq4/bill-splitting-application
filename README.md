@@ -10,7 +10,7 @@ A real-time collaborative web application for splitting restaurant bills. Users 
 - Synchronize session updates through WebSockets
 - Automatically calculate proportional tax and tip for each participant
 - Use a Lite Agent to claim compatible items for disconnected users based on dietary preferences
-- Persist sessions, members, items, and claims across the application
+- Persist session, member, item, and claim data with PostgreSQL
 
 ## Tech Stack
 
@@ -20,6 +20,33 @@ A real-time collaborative web application for splitting restaurant bills. Users 
 
 ## Architecture
 
-The application uses a Next.js frontend backed by a Spring Boot GraphQL API. Receipt uploads are processed asynchronously through Redis, while WebSocket events keep item claims and session state synchronized between participants in real time.
+The application uses a Next.js frontend backed by a Spring Boot GraphQL API. Receipt images are processed asynchronously with Tesseract OCR through a Redis-backed workflow, while WebSocket events keep item claims and session state synchronized between participants in real time.
 
 The Lite Agent reacts to user disconnects and can automatically claim compatible items on their behalf according to stored dietary preferences.
+
+## Running Locally
+
+### Prerequisites
+
+- Node.js
+- Java 17
+- PostgreSQL
+- Redis
+- Tesseract OCR
+
+### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+### Backend
+
+Configure the required environment variables for the database, Redis, and storage services, then run:
+
+```bash
+cd backend
+./mvnw spring-boot:run
+```
